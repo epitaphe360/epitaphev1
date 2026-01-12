@@ -103,10 +103,10 @@ export default function ReferencesPage() {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url('https://wp.vlthemes.com/leedo/wp-content/uploads/2018/12/attachment-122.jpg')"
+            backgroundImage: "url('https://epitaphe.ma/wp-content/uploads/2020/05/nos-references-clients.jpg')"
           }}
         />
-        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 bg-black/20" />
         
         <div className="relative z-10 text-center px-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6" data-testid="text-references-title">
