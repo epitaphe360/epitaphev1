@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useRoute } from "wouter";
-import { Menu, X, Moon, Sun, ShoppingCart, ChevronDown } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { Menu, X, Moon, Sun, ShoppingCart, ChevronDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
 import {
@@ -8,21 +8,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { solutionCategories } from "@/data/solutionsData";
 
 const metiersSubmenu = [
   { label: "Digital", href: "/solutions/digital", description: "Stratégies digitales innovantes" },
-  { label: "Production audiovisuelle", href: "/solutions/production-audiovisuelle", description: "Contenus audiovisuels de qualité" },
-  { label: "Événementiel", href: "/solutions/evenementiel", description: "Organisation d'événements" },
-  { label: "Signalétique", href: "/solutions/signaletique", description: "Signalétique intérieure et extérieure" },
-  { label: "Objets publicitaires", href: "/solutions/objets-et-cadeaux-publicitaires", description: "Goodies et cadeaux d'entreprise" },
-];
-
-const solutionsSubmenu = [
-  { label: "Objets et cadeaux publicitaires", href: "/solutions/objets-et-cadeaux-publicitaires", description: "Goodies et cadeaux d'entreprise" },
-  { label: "Signalétique", href: "/solutions/signaletique", description: "Enseignes et panneaux" },
-  { label: "Événementiel", href: "/solutions/evenementiel", description: "Organisation d'événements" },
-  { label: "Digital", href: "/solutions/digital", description: "Sites web et réseaux sociaux" },
-  { label: "Production audiovisuelle", href: "/solutions/production-audiovisuelle", description: "Vidéos et films corporate" },
+  { label: "Événementiel", href: "/solutions/organisation-evenements-btob", description: "Organisation d'événements" },
+  { label: "Communication globale", href: "/solutions/strategie-communication", description: "Stratégie de communication 360°" },
+  { label: "Industrie publicitaire", href: "/solutions/realisation-stands", description: "Fabrication et production" },
+  { label: "Branding", href: "/solutions/branding", description: "Création et développement de marque" },
 ];
 
 type NavLink = {
@@ -30,13 +23,14 @@ type NavLink = {
   href: string;
   hash?: string;
   hasSubmenu: boolean;
+  hasMegaMenu?: boolean;
   submenu?: typeof metiersSubmenu;
 };
 
 const navLinks: NavLink[] = [
   { label: "A propos", href: "/", hash: "#about", hasSubmenu: false },
   { label: "Nos métiers", href: "#", hasSubmenu: true, submenu: metiersSubmenu },
-  { label: "Nos solutions", href: "#", hasSubmenu: true, submenu: solutionsSubmenu },
+  { label: "Nos solutions", href: "#", hasSubmenu: true, hasMegaMenu: true },
   { label: "Nos références", href: "/nos-references", hasSubmenu: false },
   { label: "Ressources", href: "/blog", hasSubmenu: false },
   { label: "Contact", href: "/", hash: "#contact", hasSubmenu: false },
@@ -79,7 +73,7 @@ function DropdownMenu({
       </button>
       
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-72 bg-popover border border-popover-border rounded-md shadow-lg p-2 z-50">
+        <div className="absolute top-full left-0 mt-1 w-72 bg-white dark:bg-popover border border-border rounded-md shadow-lg p-2 z-50">
           {submenu.map((item) => (
             <Link
               key={item.label}
@@ -92,6 +86,85 @@ function DropdownMenu({
               <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
             </Link>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SolutionsMegaMenu() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setActiveCategory(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div 
+      ref={menuRef}
+      className="relative"
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => {
+        setIsOpen(false);
+        setActiveCategory(null);
+      }}
+    >
+      <button
+        className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+        data-testid="link-nav-nos-solutions"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        Nos solutions
+        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+      
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-1 bg-white dark:bg-popover border border-border rounded-md shadow-lg z-50 flex">
+          <div className="w-64 border-r border-border p-2">
+            {solutionCategories.map((category) => (
+              <div
+                key={category.slug}
+                className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors ${
+                  activeCategory === category.slug ? "bg-primary/10 text-primary" : "hover:bg-accent/50"
+                }`}
+                onMouseEnter={() => setActiveCategory(category.slug)}
+                data-testid={`link-category-${category.slug}`}
+              >
+                <span className="text-sm font-medium">{category.label}</span>
+                <ChevronRight className="h-4 w-4" />
+              </div>
+            ))}
+          </div>
+          
+          {activeCategory && (
+            <div className="w-72 p-2 max-h-96 overflow-y-auto">
+              {solutionCategories
+                .find(cat => cat.slug === activeCategory)
+                ?.items.map((item) => (
+                  <Link
+                    key={item.slug}
+                    href={`/solutions/${item.slug}`}
+                    onClick={() => {
+                      setIsOpen(false);
+                      setActiveCategory(null);
+                    }}
+                    className="block p-3 rounded-md hover:bg-accent/50 transition-colors"
+                    data-testid={`link-solution-${item.slug}`}
+                  >
+                    <div className="text-sm font-medium text-foreground">{item.label}</div>
+                  </Link>
+                ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -189,7 +262,9 @@ export function Navigation() {
 
             <nav className="hidden lg:flex items-center">
               {navLinks.map((link) => (
-                link.hasSubmenu ? (
+                link.hasMegaMenu ? (
+                  <SolutionsMegaMenu key={link.label} />
+                ) : link.hasSubmenu ? (
                   <DropdownMenu
                     key={link.label}
                     label={link.label}
@@ -266,7 +341,48 @@ export function Navigation() {
             <nav className="flex flex-col py-6 px-4 flex-1">
               {navLinks.map((link) => (
                 <div key={link.label} className="border-b border-border/50">
-                  {link.hasSubmenu ? (
+                  {link.hasMegaMenu ? (
+                    <Collapsible
+                      open={openMobileSubmenu === link.label}
+                      onOpenChange={(open) =>
+                        setOpenMobileSubmenu(open ? link.label : null)
+                      }
+                    >
+                      <CollapsibleTrigger
+                        className="flex items-center justify-between w-full py-4 text-lg font-semibold text-foreground"
+                        data-testid="link-mobile-nos-solutions"
+                      >
+                        {link.label}
+                        <ChevronDown
+                          className={`h-5 w-5 transition-transform ${
+                            openMobileSubmenu === link.label ? "rotate-180" : ""
+                          }`}
+                        />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="pl-4 pb-4 space-y-4">
+                          {solutionCategories.map((category) => (
+                            <div key={category.slug}>
+                              <p className="text-sm font-bold text-primary mb-2">{category.label}</p>
+                              <div className="space-y-1 pl-2">
+                                {category.items.map((item) => (
+                                  <Link
+                                    key={item.slug}
+                                    href={`/solutions/${item.slug}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block w-full text-left py-1.5 text-sm text-muted-foreground hover:text-primary transition-colors"
+                                    data-testid={`link-mobile-solution-${item.slug}`}
+                                  >
+                                    {item.label}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ) : link.hasSubmenu ? (
                     <Collapsible
                       open={openMobileSubmenu === link.label}
                       onOpenChange={(open) =>
