@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link, useLocation } from "wouter";
 import { Menu, X, Moon, Sun, ShoppingCart, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
@@ -9,38 +10,36 @@ import {
 } from "@/components/ui/collapsible";
 
 const metiersSubmenu = [
-  { label: "Digital", href: "#services", description: "Stratégies digitales innovantes" },
-  { label: "Industrie publicitaire", href: "#services", description: "Campagnes publicitaires percutantes" },
-  { label: "Contents", href: "#services", description: "Création de contenus engageants" },
-  { label: "Communication globale", href: "#services", description: "Stratégies intégrées" },
-  { label: "Événementiel", href: "#services", description: "Organisation d'événements" },
+  { label: "Digital", href: "/solutions/digital", description: "Stratégies digitales innovantes" },
+  { label: "Production audiovisuelle", href: "/solutions/production-audiovisuelle", description: "Contenus audiovisuels de qualité" },
+  { label: "Événementiel", href: "/solutions/evenementiel", description: "Organisation d'événements" },
+  { label: "Signalétique", href: "/solutions/signaletique", description: "Signalétique intérieure et extérieure" },
+  { label: "Objets publicitaires", href: "/solutions/objets-et-cadeaux-publicitaires", description: "Goodies et cadeaux d'entreprise" },
 ];
 
 const solutionsSubmenu = [
-  { label: "Branding", href: "#portfolio", description: "Identité visuelle et positionnement" },
-  { label: "Design graphique", href: "#portfolio", description: "Créations visuelles impactantes" },
-  { label: "Production vidéo", href: "#portfolio", description: "Contenus audiovisuels" },
-  { label: "Stratégie digitale", href: "#portfolio", description: "Présence en ligne optimisée" },
-  { label: "Social media", href: "#portfolio", description: "Gestion des réseaux sociaux" },
+  { label: "Objets et cadeaux publicitaires", href: "/solutions/objets-et-cadeaux-publicitaires", description: "Goodies et cadeaux d'entreprise" },
+  { label: "Signalétique", href: "/solutions/signaletique", description: "Enseignes et panneaux" },
+  { label: "Événementiel", href: "/solutions/evenementiel", description: "Organisation d'événements" },
+  { label: "Digital", href: "/solutions/digital", description: "Sites web et réseaux sociaux" },
+  { label: "Production audiovisuelle", href: "/solutions/production-audiovisuelle", description: "Vidéos et films corporate" },
 ];
 
 const navLinks = [
-  { label: "A propos", href: "#about", hasSubmenu: false },
-  { label: "Nos métiers", href: "#services", hasSubmenu: true, submenu: metiersSubmenu },
-  { label: "Nos solutions", href: "#portfolio", hasSubmenu: true, submenu: solutionsSubmenu },
-  { label: "Nos références", href: "#portfolio", hasSubmenu: false },
-  { label: "Ressources", href: "#blog", hasSubmenu: false },
-  { label: "Contact", href: "#contact", hasSubmenu: false },
+  { label: "A propos", href: "/#about", hasSubmenu: false, isExternal: false },
+  { label: "Nos métiers", href: "#", hasSubmenu: true, submenu: metiersSubmenu },
+  { label: "Nos solutions", href: "#", hasSubmenu: true, submenu: solutionsSubmenu },
+  { label: "Nos références", href: "/nos-references", hasSubmenu: false, isExternal: false },
+  { label: "Ressources", href: "/blog", hasSubmenu: false, isExternal: false },
+  { label: "Contact", href: "/#contact", hasSubmenu: false, isExternal: false },
 ];
 
 function DropdownMenu({ 
   label, 
-  submenu, 
-  scrollToSection 
+  submenu,
 }: { 
   label: string; 
   submenu: typeof metiersSubmenu; 
-  scrollToSection: (href: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -74,18 +73,16 @@ function DropdownMenu({
       {isOpen && (
         <div className="absolute top-full left-0 mt-1 w-72 bg-popover border border-popover-border rounded-md shadow-lg p-2 z-50">
           {submenu.map((item) => (
-            <button
+            <Link
               key={item.label}
-              onClick={() => {
-                scrollToSection(item.href);
-                setIsOpen(false);
-              }}
+              href={item.href}
+              onClick={() => setIsOpen(false)}
               className="block w-full text-left p-3 rounded-md hover:bg-accent/50 transition-colors"
               data-testid={`link-submenu-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
             >
               <div className="text-sm font-medium text-foreground">{item.label}</div>
               <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
-            </button>
+            </Link>
           ))}
         </div>
       )}
@@ -98,6 +95,7 @@ export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
   const { theme, setTheme } = useTheme();
+  const [location] = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,12 +105,18 @@ export function Navigation() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+  const handleNavClick = (href: string) => {
     setIsMobileMenuOpen(false);
+    
+    if (href.startsWith("/#")) {
+      const sectionId = href.replace("/#", "#");
+      if (location === "/") {
+        const element = document.querySelector(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+    }
   };
 
   return (
@@ -127,14 +131,10 @@ export function Navigation() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center justify-between h-16 md:h-20">
-            <a
-              href="#"
+            <Link
+              href="/"
               className="flex items-center"
               data-testid="link-logo"
-              onClick={(e) => {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
             >
               <img
                 src="https://epitaphe.ma/wp-content/uploads/2020/05/LOGO-epitaphe360-1.png"
@@ -142,7 +142,7 @@ export function Navigation() {
                 className="h-10 md:h-12 w-auto"
                 data-testid="img-logo"
               />
-            </a>
+            </Link>
 
             <nav className="hidden lg:flex items-center">
               {navLinks.map((link) => (
@@ -151,17 +151,17 @@ export function Navigation() {
                     key={link.label}
                     label={link.label}
                     submenu={link.submenu!}
-                    scrollToSection={scrollToSection}
                   />
                 ) : (
-                  <button
+                  <Link
                     key={link.label}
-                    onClick={() => scrollToSection(link.href)}
+                    href={link.href}
+                    onClick={() => handleNavClick(link.href)}
                     className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
                     data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
                   >
                     {link.label}
-                  </button>
+                  </Link>
                 )
               ))}
             </nav>
@@ -245,26 +245,28 @@ export function Navigation() {
                       <CollapsibleContent>
                         <div className="pl-4 pb-4 space-y-2">
                           {link.submenu?.map((item) => (
-                            <button
+                            <Link
                               key={item.label}
-                              onClick={() => scrollToSection(item.href)}
+                              href={item.href}
+                              onClick={() => setIsMobileMenuOpen(false)}
                               className="block w-full text-left py-2 text-base text-muted-foreground hover:text-primary transition-colors"
                               data-testid={`link-mobile-submenu-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
                             >
                               {item.label}
-                            </button>
+                            </Link>
                           ))}
                         </div>
                       </CollapsibleContent>
                     </Collapsible>
                   ) : (
-                    <button
-                      onClick={() => scrollToSection(link.href)}
+                    <Link
+                      href={link.href}
+                      onClick={() => handleNavClick(link.href)}
                       className="block w-full text-left py-4 text-lg font-semibold text-foreground hover:text-primary transition-colors"
                       data-testid={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
                     >
                       {link.label}
-                    </button>
+                    </Link>
                   )}
                 </div>
               ))}
