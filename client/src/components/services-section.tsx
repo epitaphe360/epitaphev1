@@ -2,29 +2,29 @@ import { Card } from "@/components/ui/card";
 
 const services = [
   {
-    id: "digital",
-    title: "Digital",
-    image: "https://epitaphe.ma/wp-content/uploads/2020/04/digital-1.jpg",
+    id: "communication-corporate",
+    title: "Communication corporate",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/05/Com-CORPORATE-1.jpg",
   },
   {
-    id: "publicite",
-    title: "Industrie publicitaire",
-    image: "https://epitaphe.ma/wp-content/uploads/2020/04/industrie-publicitaire-1.jpg",
+    id: "communication-produits",
+    title: "Communication produits",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/05/com-produits.jpg",
   },
   {
-    id: "contents",
-    title: "Contents",
-    image: "https://epitaphe.ma/wp-content/uploads/2020/04/contents-1.jpg",
+    id: "communication-evenementielle",
+    title: "Communication événementielle",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/05/com-event.jpg",
   },
   {
-    id: "communication",
-    title: "Communication globale",
-    image: "https://epitaphe.ma/wp-content/uploads/2020/04/communication-globale-1.jpg",
+    id: "communication-financiere",
+    title: "Communication financière",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/05/com-financiere.jpg",
   },
   {
-    id: "evenementiel",
-    title: "Événementiel",
-    image: "https://epitaphe.ma/wp-content/uploads/2020/04/evenementiel.jpg",
+    id: "communication-interne",
+    title: "Communication interne",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/05/com-interne.jpg",
   },
 ];
 

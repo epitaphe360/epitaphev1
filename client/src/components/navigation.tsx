@@ -11,11 +11,11 @@ import {
 import { solutionCategories } from "@/data/solutionsData";
 
 const metiersSubmenu = [
-  { label: "Digital", href: "/solutions/digital", description: "Stratégies digitales innovantes" },
-  { label: "Événementiel", href: "/solutions/organisation-evenements-btob", description: "Organisation d'événements" },
-  { label: "Communication globale", href: "/solutions/strategie-communication", description: "Stratégie de communication 360°" },
-  { label: "Industrie publicitaire", href: "/solutions/realisation-stands", description: "Fabrication et production" },
-  { label: "Branding", href: "/solutions/branding", description: "Création et développement de marque" },
+  { label: "Communication corporate", href: "/solutions/communication-corporate", description: "Stratégie de marque et identité" },
+  { label: "Communication produits", href: "/solutions/communication-produits", description: "Lancements et activations" },
+  { label: "Communication événementielle", href: "/solutions/communication-evenementielle", description: "Organisation de A à Z" },
+  { label: "Communication financière", href: "/solutions/communication-financiere", description: "Rapports et relations investisseurs" },
+  { label: "Communication interne", href: "/solutions/communication-interne", description: "Engagement des collaborateurs" },
 ];
 
 type NavLink = {
