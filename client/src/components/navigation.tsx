@@ -94,14 +94,13 @@ function DropdownMenu({
 
 function SolutionsMegaMenu() {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>(solutionCategories[0].slug);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        setActiveCategory(null);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -113,10 +112,7 @@ function SolutionsMegaMenu() {
       ref={menuRef}
       className="relative"
       onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => {
-        setIsOpen(false);
-        setActiveCategory(null);
-      }}
+      onMouseLeave={() => setIsOpen(false)}
     >
       <button
         className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
@@ -145,26 +141,21 @@ function SolutionsMegaMenu() {
             ))}
           </div>
           
-          {activeCategory && (
-            <div className="w-72 p-2 max-h-96 overflow-y-auto">
-              {solutionCategories
-                .find(cat => cat.slug === activeCategory)
-                ?.items.map((item) => (
-                  <Link
-                    key={item.slug}
-                    href={`/solutions/${item.slug}`}
-                    onClick={() => {
-                      setIsOpen(false);
-                      setActiveCategory(null);
-                    }}
-                    className="block p-3 rounded-md hover:bg-accent/50 transition-colors"
-                    data-testid={`link-solution-${item.slug}`}
-                  >
-                    <div className="text-sm font-medium text-foreground">{item.label}</div>
-                  </Link>
-                ))}
-            </div>
-          )}
+          <div className="w-72 p-2 max-h-96 overflow-y-auto">
+            {solutionCategories
+              .find(cat => cat.slug === activeCategory)
+              ?.items.map((item) => (
+                <Link
+                  key={item.slug}
+                  href={`/solutions/${item.slug}`}
+                  onClick={() => setIsOpen(false)}
+                  className="block p-3 rounded-md hover:bg-accent/50 transition-colors"
+                  data-testid={`link-solution-${item.slug}`}
+                >
+                  <div className="text-sm font-medium text-foreground">{item.label}</div>
+                </Link>
+              ))}
+          </div>
         </div>
       )}
     </div>
