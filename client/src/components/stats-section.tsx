@@ -4,7 +4,7 @@ const stats = [
   { value: 20, label: "Ans d'expérience", suffix: "" },
   { value: 360, label: "Vision globale", suffix: "°" },
   { value: 500, label: "Projets réalisés", suffix: "+" },
-  { value: 150, label: "Clients satisfaits", suffix: "+" },
+  { value: 200, label: "Clients satisfaits", suffix: "+" },
 ];
 
 function AnimatedCounter({
@@ -73,10 +73,12 @@ export function StatsSection() {
       className="py-20 md:py-32 relative overflow-hidden"
       data-testid="section-stats"
     >
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 right-20 w-48 h-48 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 left-20 w-64 h-64 bg-accent/5 rounded-full blur-3xl" />
-      </div>
+      <div 
+        className="absolute inset-0 bg-center bg-no-repeat opacity-5"
+        style={{
+          backgroundImage: "url('https://epitaphe.ma/wp-content/uploads/2018/10/particle-01-black.png')"
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-16">
@@ -92,7 +94,7 @@ export function StatsSection() {
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="text-center"
+              className="text-center p-6 rounded-md"
               data-testid={`stat-item-${index}`}
             >
               <AnimatedCounter
@@ -100,7 +102,7 @@ export function StatsSection() {
                 suffix={stat.suffix}
                 isVisible={isVisible}
               />
-              <p className="text-sm md:text-base text-muted-foreground mt-2 font-medium">
+              <p className="text-sm md:text-base text-muted-foreground mt-3 font-medium">
                 {stat.label}
               </p>
             </div>
