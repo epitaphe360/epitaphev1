@@ -3,7 +3,7 @@
 // ========================================
 
 import React from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { useLocation } from 'wouter';
 import { Sidebar } from '../components/Sidebar';
 import { ToastProvider } from '../components/Toast';
 import { useAuthStore } from '../store/authStore';
@@ -11,19 +11,20 @@ import { DashboardConfigProvider, defaultConfig, DashboardConfig } from '../conf
 
 interface DashboardLayoutProps {
   config?: Partial<DashboardConfig>;
+  children: React.ReactNode;
 }
 
-export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ config }) => {
+export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ config, children }) => {
   const { user, logout } = useAuthStore();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
 
   const handleLogout = () => {
     logout();
-    navigate('/admin/login');
+    setLocation('/admin/login');
   };
 
   if (!user) {
-    navigate('/admin/login');
+    setLocation('/admin/login');
     return null;
   }
 
@@ -32,7 +33,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ config }) => {
   return (
     <DashboardConfigProvider config={mergedConfig}>
       <ToastProvider>
-        <div className="flex h-screen bg-gray-100">
+        <div data-admin-page className="admin-dashboard flex h-screen overflow-hidden" style={{ backgroundColor: '#0f172a', color: '#e2e8f0' }}>
           <Sidebar
             user={{
               name: user.name,
@@ -42,22 +43,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ config }) => {
             onLogout={handleLogout}
           />
 
-          <main className="flex-1 overflow-y-auto">
-            {/* Header */}
-            <header className="sticky top-0 z-30 bg-white border-b border-gray-200 px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  {/* Breadcrumb ou titre de page */}
-                </div>
-                <div className="flex items-center gap-4">
-                  {/* Actions globales */}
-                </div>
+          <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative" style={{ backgroundColor: '#0f172a' }}>
+            {/* Content Area - Full screen pour le dashboard */}
+                   <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent pt-16 md:pt-1 px-1 pb-1">
+              <div className="min-h-full">
+                {children}
               </div>
-            </header>
-
-            {/* Content */}
-            <div className="p-6">
-              <Outlet />
             </div>
           </main>
         </div>

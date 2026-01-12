@@ -286,3 +286,67 @@
     inset: -1px;
   }
 }
+
+/* ================================================
+   ADMIN DASHBOARD - Force Dark Theme
+   ================================================ */
+
+/* Force les pages admin à avoir un fond sombre */
+body:has([data-admin-page]) {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+}
+
+/* Style global pour le dashboard admin */
+.admin-dashboard {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  min-height: 100vh;
+}
+
+.admin-dashboard * {
+  border-color: rgba(71, 85, 105, 0.5);
+}
+
+/* Texte visible sur fond sombre */
+.admin-dashboard h1,
+.admin-dashboard h2,
+.admin-dashboard h3,
+.admin-dashboard h4,
+.admin-dashboard h5,
+.admin-dashboard h6 {
+  color: #f8fafc !important;
+}
+
+.admin-dashboard p,
+.admin-dashboard span,
+.admin-dashboard label,
+.admin-dashboard div {
+  color: inherit;
+}
+
+/* Inputs du dashboard */
+.admin-dashboard input,
+.admin-dashboard textarea,
+.admin-dashboard select {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+.admin-dashboard input::placeholder,
+.admin-dashboard textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Boutons du dashboard */
+.admin-dashboard button:not([class*="bg-"]) {
+  color: #e2e8f0;
+}
+
+/* Cards du dashboard */
+.admin-dashboard .card,
+.admin-dashboard [class*="Card"] {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}

@@ -34,6 +34,7 @@ const navLinks: NavLink[] = [
   { label: "Nos références", href: "/nos-references", hasSubmenu: false },
   { label: "Ressources", href: "/blog", hasSubmenu: false },
   { label: "Contact", href: "/", hash: "#contact", hasSubmenu: false },
+  { label: "Se connecter", href: "/admin/login", hasSubmenu: false },
 ];
 
 function DropdownMenu({ 

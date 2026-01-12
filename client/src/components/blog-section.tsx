@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 
 const articles = [
   {
@@ -65,10 +66,12 @@ export function BlogSection() {
         </div>
 
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg" data-testid="button-all-articles">
-            Tous les articles
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          <Link href="/blog">
+            <Button variant="outline" size="lg" data-testid="button-all-articles">
+              Tous les articles
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

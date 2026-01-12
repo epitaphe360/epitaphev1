@@ -2,6 +2,8 @@
 // CMS Dashboard - Configuration
 // ========================================
 
+import React, { createContext, useContext, ReactNode } from 'react';
+
 export interface NavigationItem {
   name: string;
   href: string;
@@ -14,6 +16,13 @@ export interface DashboardConfig {
   appName: string;
   logo?: string;
   logoText?: string;
+  
+  // Branding (pour compatibilité)
+  branding: {
+    name: string;
+    logo?: string;
+    logoText?: string;
+  };
   
   // Colors (Tailwind classes ou hex)
   primaryColor: string;
@@ -51,6 +60,10 @@ export interface DashboardConfig {
 export const defaultConfig: DashboardConfig = {
   appName: 'CMS Dashboard',
   logoText: 'CMS',
+  branding: {
+    name: 'CMS Dashboard',
+    logoText: 'CMS'
+  },
   primaryColor: '#3B82F6', // blue-500
   accentColor: '#E63946',
   apiUrl: '/api',
@@ -80,8 +93,25 @@ export const defaultConfig: DashboardConfig = {
 };
 
 // Contexte pour partager la config
-import { createContext, useContext } from 'react';
-
 export const DashboardConfigContext = createContext<DashboardConfig>(defaultConfig);
 
 export const useDashboardConfig = () => useContext(DashboardConfigContext);
+
+// Provider pour la configuration
+interface DashboardConfigProviderProps {
+  children: ReactNode;
+  config?: Partial<DashboardConfig>;
+}
+
+export const DashboardConfigProvider: React.FC<DashboardConfigProviderProps> = ({ 
+  children, 
+  config = {} 
+}) => {
+  const mergedConfig = { ...defaultConfig, ...config };
+  
+  return (
+    <DashboardConfigContext.Provider value={mergedConfig}>
+      {children}
+    </DashboardConfigContext.Provider>
+  );
+};

@@ -6,6 +6,38 @@ import { useState, useEffect, useCallback } from 'react';
 import { AxiosInstance, AxiosError } from 'axios';
 import { getApi } from '../lib/api';
 
+// Hook simplifié pour utiliser l'API directement
+export function useApi() {
+  const api = getApi();
+  
+  const get = async (url: string, params?: any) => {
+    const response = await api.get(url, { params });
+    return response.data;
+  };
+
+  const post = async (url: string, data?: any) => {
+    const response = await api.post(url, data);
+    return response.data;
+  };
+
+  const put = async (url: string, data?: any) => {
+    const response = await api.put(url, data);
+    return response.data;
+  };
+
+  const patch = async (url: string, data?: any) => {
+    const response = await api.patch(url, data);
+    return response.data;
+  };
+
+  const deleteApi = async (url: string) => {
+    const response = await api.delete(url);
+    return response.data;
+  };
+
+  return { get, post, put, patch, delete: deleteApi };
+}
+
 // Hook pour les requêtes API avec état
 interface UseApiState<T> {
   data: T | null;

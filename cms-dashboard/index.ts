@@ -10,7 +10,7 @@ export {
   type DashboardConfig,
   type NavigationItem,
   type ModuleConfig 
-} from './config';
+} from './config.tsx';
 
 // Types
 export * from './types';

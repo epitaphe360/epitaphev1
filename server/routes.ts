@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertContactMessageSchema } from "@shared/schema";
+import { registerAdminRoutes } from "./admin-routes";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -26,6 +27,9 @@ export async function registerRoutes(
       res.status(500).json({ error: "Failed to fetch messages" });
     }
   });
+
+  // Register CMS admin routes
+  registerAdminRoutes(app);
 
   return httpServer;
 }

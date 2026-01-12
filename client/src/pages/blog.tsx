@@ -1,6 +1,8 @@
 import { Navigation } from "@/components/navigation";
 import { Footer } from "@/components/footer";
 import { Link } from "wouter";
+import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 
 const blogArticles = [
   {
@@ -69,18 +71,47 @@ const blogArticles = [
 ];
 
 export default function BlogPage() {
+  const [selectedCategory, setSelectedCategory] = useState<string>("Tous");
+  
+  // Extraire toutes les catégories uniques
+  const allCategories = ["Tous", ...Array.from(new Set(blogArticles.flatMap(article => article.categories)))];
+  
+  // Filtrer les articles par catégorie
+  const filteredArticles = selectedCategory === "Tous" 
+    ? blogArticles 
+    : blogArticles.filter(article => article.categories.includes(selectedCategory));
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       
       <section className="pt-32 pb-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-16" data-testid="text-blog-title">
-            Le blog
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-8" data-testid="text-blog-title">
+            Tous nos articles
           </h1>
           
+          {/* Filtres par catégorie */}
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            {allCategories.map((category) => (
+              <Badge
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors px-4 py-2"
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </Badge>
+            ))}
+          </div>
+          
+          {/* Compteur d'articles */}
+          <p className="text-center text-muted-foreground mb-8">
+            {filteredArticles.length} article{filteredArticles.length > 1 ? 's' : ''} trouvé{filteredArticles.length > 1 ? 's' : ''}
+          </p>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogArticles.map((article) => (
+            {filteredArticles.map((article) => (
               <Link 
                 key={article.slug} 
                 href={`/blog/${article.slug}`}

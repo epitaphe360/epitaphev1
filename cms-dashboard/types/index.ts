@@ -188,3 +188,6 @@ export interface TableAction<T> {
   variant?: 'primary' | 'secondary' | 'danger';
   condition?: (item: T) => boolean;
 }
+
+// Import website-specific types
+export * from './website-types';
