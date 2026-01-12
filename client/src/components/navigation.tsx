@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useRoute } from "wouter";
 import { Menu, X, Moon, Sun, ShoppingCart, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/components/theme-provider";
@@ -25,13 +25,21 @@ const solutionsSubmenu = [
   { label: "Production audiovisuelle", href: "/solutions/production-audiovisuelle", description: "Vidéos et films corporate" },
 ];
 
-const navLinks = [
-  { label: "A propos", href: "/#about", hasSubmenu: false, isExternal: false },
+type NavLink = {
+  label: string;
+  href: string;
+  hash?: string;
+  hasSubmenu: boolean;
+  submenu?: typeof metiersSubmenu;
+};
+
+const navLinks: NavLink[] = [
+  { label: "A propos", href: "/", hash: "#about", hasSubmenu: false },
   { label: "Nos métiers", href: "#", hasSubmenu: true, submenu: metiersSubmenu },
   { label: "Nos solutions", href: "#", hasSubmenu: true, submenu: solutionsSubmenu },
-  { label: "Nos références", href: "/nos-references", hasSubmenu: false, isExternal: false },
-  { label: "Ressources", href: "/blog", hasSubmenu: false, isExternal: false },
-  { label: "Contact", href: "/#contact", hasSubmenu: false, isExternal: false },
+  { label: "Nos références", href: "/nos-references", hasSubmenu: false },
+  { label: "Ressources", href: "/blog", hasSubmenu: false },
+  { label: "Contact", href: "/", hash: "#contact", hasSubmenu: false },
 ];
 
 function DropdownMenu({ 
@@ -90,12 +98,63 @@ function DropdownMenu({
   );
 }
 
+function NavLinkItem({ 
+  link, 
+  currentPath, 
+  onClose,
+  className,
+  navigate
+}: { 
+  link: NavLink; 
+  currentPath: string; 
+  onClose: () => void;
+  className: string;
+  navigate: (path: string) => void;
+}) {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onClose();
+    
+    if (link.hash) {
+      if (currentPath === "/") {
+        const element = document.querySelector(link.hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      } else {
+        navigate("/");
+        window.history.replaceState(null, "", "/" + link.hash);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            const element = document.querySelector(link.hash!);
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth" });
+            }
+          });
+        });
+      }
+    } else {
+      navigate(link.href);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className={className}
+      data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
+    >
+      {link.label}
+    </button>
+  );
+}
+
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openMobileSubmenu, setOpenMobileSubmenu] = useState<string | null>(null);
   const { theme, setTheme } = useTheme();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -104,20 +163,6 @@ export function Navigation() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleNavClick = (href: string) => {
-    setIsMobileMenuOpen(false);
-    
-    if (href.startsWith("/#")) {
-      const sectionId = href.replace("/#", "#");
-      if (location === "/") {
-        const element = document.querySelector(sectionId);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
-        }
-      }
-    }
-  };
 
   return (
     <>
@@ -153,15 +198,14 @@ export function Navigation() {
                     submenu={link.submenu!}
                   />
                 ) : (
-                  <Link
+                  <NavLinkItem
                     key={link.label}
-                    href={link.href}
-                    onClick={() => handleNavClick(link.href)}
+                    link={link}
+                    currentPath={location}
+                    onClose={() => {}}
                     className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
-                    data-testid={`link-nav-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-                  >
-                    {link.label}
-                  </Link>
+                    navigate={setLocation}
+                  />
                 )
               ))}
             </nav>
@@ -259,14 +303,13 @@ export function Navigation() {
                       </CollapsibleContent>
                     </Collapsible>
                   ) : (
-                    <Link
-                      href={link.href}
-                      onClick={() => handleNavClick(link.href)}
+                    <NavLinkItem
+                      link={link}
+                      currentPath={location}
+                      onClose={() => setIsMobileMenuOpen(false)}
                       className="block w-full text-left py-4 text-lg font-semibold text-foreground hover:text-primary transition-colors"
-                      data-testid={`link-mobile-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
-                    >
-                      {link.label}
-                    </Link>
+                      navigate={setLocation}
+                    />
                   )}
                 </div>
               ))}
