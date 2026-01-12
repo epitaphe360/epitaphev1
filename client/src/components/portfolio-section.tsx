@@ -1,4 +1,3 @@
-import { ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const projects = [
@@ -6,31 +5,31 @@ const projects = [
     id: 1,
     client: "Qatar Airways",
     category: "Événementiel",
-    color: "from-purple-500/30 to-blue-500/30",
+    image: "https://epitaphe.ma/wp-content/uploads/2018/10/eventqatar.jpg",
   },
   {
     id: 2,
     client: "Schneider Electric",
     category: "Communication",
-    color: "from-green-500/30 to-teal-500/30",
+    image: "https://epitaphe.ma/wp-content/uploads/2018/10/LIFE.jpg",
   },
   {
     id: 3,
     client: "Dell",
     category: "Digital",
-    color: "from-blue-500/30 to-indigo-500/30",
+    image: "https://epitaphe.ma/wp-content/uploads/2018/10/dell-rea.jpg",
   },
   {
     id: 4,
     client: "SNEP",
     category: "Rapport Annuel",
-    color: "from-orange-500/30 to-red-500/30",
+    image: "https://epitaphe.ma/wp-content/uploads/2018/10/REARapport.jpg",
   },
   {
     id: 5,
     client: "Ajial",
     category: "Branding",
-    color: "from-pink-500/30 to-purple-500/30",
+    image: "https://epitaphe.ma/wp-content/uploads/2018/10/Ajial2-1.jpg",
   },
 ];
 
@@ -58,32 +57,21 @@ export function PortfolioSection() {
           {projects.map((project) => (
             <Card
               key={project.id}
-              className="group relative overflow-visible aspect-[4/3] cursor-pointer border-0 hover-elevate"
+              className="group relative overflow-hidden aspect-[4/3] cursor-pointer border-0"
               data-testid={`card-project-${project.id}`}
             >
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${project.color} rounded-md`}
+              <img
+                src={project.image}
+                alt={project.client}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/60 dark:group-hover:bg-background/60 transition-colors duration-300 rounded-md" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
 
-              <div className="absolute inset-0 flex flex-col items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-300">
-                <div className="w-16 h-16 rounded-full bg-background/20 backdrop-blur-sm flex items-center justify-center">
-                  <span className="text-xl font-bold text-foreground">
-                    {project.client.charAt(0)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4">
-                <h3 className="text-xl font-bold text-background dark:text-foreground text-center">
+              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                <h3 className="text-xl font-bold text-white mb-1">
                   {project.client}
                 </h3>
-                <p className="text-sm text-background/80 dark:text-foreground/80 mt-1">
-                  {project.category}
-                </p>
-                <div className="mt-4 w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                  <ExternalLink className="w-5 h-5 text-primary-foreground" />
-                </div>
+                <p className="text-sm text-white/80">{project.category}</p>
               </div>
             </Card>
           ))}

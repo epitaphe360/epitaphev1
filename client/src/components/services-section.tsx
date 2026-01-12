@@ -1,41 +1,30 @@
-import { Monitor, Megaphone, FileText, Globe, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const services = [
   {
     id: "digital",
     title: "Digital",
-    icon: Monitor,
-    description: "Stratégies digitales innovantes pour votre présence en ligne",
-    color: "from-blue-500/20 to-purple-500/20",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/04/digital-1.jpg",
   },
   {
     id: "publicite",
     title: "Industrie publicitaire",
-    icon: Megaphone,
-    description: "Campagnes publicitaires percutantes et mémorables",
-    color: "from-orange-500/20 to-red-500/20",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/04/industrie-publicitaire-1.jpg",
   },
   {
     id: "contents",
     title: "Contents",
-    icon: FileText,
-    description: "Création de contenus engageants et pertinents",
-    color: "from-green-500/20 to-teal-500/20",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/04/contents-1.jpg",
   },
   {
     id: "communication",
     title: "Communication globale",
-    icon: Globe,
-    description: "Stratégies de communication intégrées et cohérentes",
-    color: "from-purple-500/20 to-pink-500/20",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/04/communication-globale-1.jpg",
   },
   {
     id: "evenementiel",
     title: "Événementiel",
-    icon: Calendar,
-    description: "Organisation d'événements marquants et inoubliables",
-    color: "from-pink-500/20 to-red-500/20",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/04/evenementiel.jpg",
   },
 ];
 
@@ -59,31 +48,49 @@ export function ServicesSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {services.map((service) => (
-            <Card
-              key={service.id}
-              className="group relative overflow-visible p-6 hover-elevate cursor-pointer border-0 bg-card"
-              data-testid={`card-service-${service.id}`}
-            >
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md`}
-              />
-              <div className="relative z-10">
-                <div className="w-14 h-14 rounded-md bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <service.icon className="w-7 h-7 text-primary" />
+        <div className="overflow-hidden">
+          <div className="flex animate-services-scroll">
+            {[...services, ...services, ...services].map((service, index) => (
+              <Card
+                key={`${service.id}-${index}`}
+                className="group relative flex-shrink-0 w-72 md:w-80 mx-3 overflow-hidden cursor-pointer border-0 bg-card"
+                data-testid={`card-service-${service.id}-${index}`}
+              >
+                <div className="aspect-[4/3] overflow-hidden">
+                  <img
+                    src={service.image}
+                    alt={service.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                 </div>
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  {service.title}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {service.description}
-                </p>
-              </div>
-            </Card>
-          ))}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                  <h3 className="text-lg md:text-xl font-bold text-white">
+                    {service.title}
+                  </h3>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes services-scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-33.33%);
+          }
+        }
+        .animate-services-scroll {
+          animation: services-scroll 25s linear infinite;
+        }
+        .animate-services-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
     </section>
   );
 }

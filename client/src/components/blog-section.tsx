@@ -1,4 +1,4 @@
-import { ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ const articles = [
       "Les équipes interfonctionnelles en marketing promettent d'améliorer l'efficacité, mais elles échouent souvent à cause du manque d'alignement.",
     date: "15 Mars 2025",
     category: "Marketing",
+    image: "https://epitaphe.ma/wp-content/uploads/2025/03/Pourquoi-les-equipes-interfonctionnelles-en-marketing-echouent.jpg",
   },
   {
     id: 2,
@@ -20,6 +21,7 @@ const articles = [
       "Découvrez les erreurs courantes lors de l'organisation d'un Safety Day et comment les éviter pour maximiser l'impact.",
     date: "10 Mai 2025",
     category: "Événementiel",
+    image: "https://epitaphe.ma/wp-content/uploads/2025/05/Safety-day-1920x1281.jpg",
   },
   {
     id: 3,
@@ -28,6 +30,7 @@ const articles = [
       "La PLV et l'ILV sont des outils essentiels pour attirer l'attention en point de vente. Voici nos conseils d'experts.",
     date: "5 Mai 2025",
     category: "Publicité",
+    image: "https://epitaphe.ma/wp-content/uploads/2020/05/reussir-PLV-ILV.jpg",
   },
 ];
 
@@ -58,13 +61,15 @@ export function BlogSection() {
           {articles.map((article) => (
             <Card
               key={article.id}
-              className="group overflow-visible hover-elevate cursor-pointer border-0 bg-card"
+              className="group overflow-hidden cursor-pointer border-0 bg-card"
               data-testid={`card-article-${article.id}`}
             >
-              <div className="aspect-[16/10] bg-gradient-to-br from-primary/20 to-accent/10 rounded-t-md flex items-center justify-center overflow-hidden">
-                <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Calendar className="w-8 h-8 text-primary" />
-                </div>
+              <div className="aspect-[16/10] overflow-hidden">
+                <img
+                  src={article.image}
+                  alt={article.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
               </div>
               <div className="p-5">
                 <div className="flex items-center gap-3 mb-3">

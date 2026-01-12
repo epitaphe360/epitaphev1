@@ -32,11 +32,13 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="font-bold text-xl text-background">epitaphe</span>
-              <span className="bg-primary text-primary-foreground text-xs font-bold px-1.5 py-0.5 rounded">
-                360
-              </span>
+            <div className="mb-4">
+              <img
+                src="https://epitaphe.ma/wp-content/uploads/2020/05/LOGO-epitaphe360-1.png"
+                alt="Epitaphe 360"
+                className="h-10 w-auto brightness-0 invert"
+                data-testid="img-footer-logo"
+              />
             </div>
             <p className="text-background/70 text-sm leading-relaxed mb-6">
               Agence de communication 360° à Casablanca. Inspirez. Connectez. Marquez
@@ -133,10 +135,16 @@ export function Footer() {
               © {new Date().getFullYear()} Epitaphe 360. Tous droits réservés.
             </p>
             <div className="flex gap-6">
-              <button className="text-sm text-background/50 hover:text-primary transition-colors">
+              <button 
+                className="text-sm text-background/50 hover:text-primary transition-colors"
+                data-testid="link-mentions-legales"
+              >
                 Mentions légales
               </button>
-              <button className="text-sm text-background/50 hover:text-primary transition-colors">
+              <button 
+                className="text-sm text-background/50 hover:text-primary transition-colors"
+                data-testid="link-politique-confidentialite"
+              >
                 Politique de confidentialité
               </button>
             </div>

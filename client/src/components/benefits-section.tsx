@@ -49,18 +49,12 @@ export function BenefitsSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="relative order-2 lg:order-1">
-            <div className="aspect-[4/3] rounded-md overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-              <div className="text-center p-8">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
-                  <Users className="w-10 h-10 text-primary" />
-                </div>
-                <p className="text-lg font-semibold text-foreground">
-                  Notre équipe créative
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  20 ans d'expertise à votre service
-                </p>
-              </div>
+            <div className="aspect-[4/3] rounded-md overflow-hidden">
+              <img
+                src="https://epitaphe.ma/wp-content/uploads/2020/05/bg-agence-de-com-360-800x450.jpg"
+                alt="Agence de communication 360"
+                className="w-full h-full object-cover"
+              />
             </div>
 
             <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-xl" />
