@@ -7,7 +7,7 @@ import { RouteObject, Navigate } from 'react-router-dom';
 
 // Import pages
 import { DashboardLayout } from './layouts/DashboardLayout';
-import { LoginPage } from './pages/LoginPage';
+import { NewLoginPage as LoginPage } from './pages/NewLoginPage';
 import Dashboard from './pages/Dashboard';
 import { DashboardPage } from './pages/DashboardPage';
 import { MediaLibrary } from './pages/MediaLibrary';
