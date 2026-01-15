@@ -62,7 +62,7 @@ interface TopPage {
 
 const StatCard = ({ title, value, subtext, trend, icon: Icon, delay }: any) => (
   <div 
-    className="group relative overflow-hidden rounded-3xl bg-[#0B1121] border border-[#1E293B] p-5 transition-all duration-500 hover:border-blue-500/30 hover:shadow-2xl hover:shadow-blue-500/10"
+    className="group relative overflow-hidden rounded-3xl bg-[#0B1121] border border-[#1E293B] p-5 transition-all duration-500 hover:border-[#E63946]/30 hover:shadow-2xl hover:shadow-[#E63946]/10"
     style={{ animation: `fadeInUp 0.6s ease-out ${delay}s backwards` }}
   >
     <div className="absolute top-0 right-0 p-5 opacity-[0.04] transition-opacity duration-500 group-hover:opacity-[0.08]">
@@ -71,7 +71,7 @@ const StatCard = ({ title, value, subtext, trend, icon: Icon, delay }: any) => (
     
     <div className="relative z-10">
       <div className="flex items-center justify-between mb-3">
-        <div className="p-2 rounded-2xl bg-[#1E293B]/50 border border-[#334155]/40 text-blue-400">
+        <div className="p-2 rounded-2xl bg-[#1E293B]/50 border border-[#334155]/40 text-[#E63946] group-hover:bg-[#E63946] group-hover:text-white transition-colors">
           <Icon className="w-[18px] h-[18px]" />
         </div>
         {trend && (
@@ -91,7 +91,7 @@ const StatCard = ({ title, value, subtext, trend, icon: Icon, delay }: any) => (
         <span className="text-2xl md:text-3xl font-bold text-white tracking-tight">{value}</span>
       </div>
       <p className="text-slate-500 text-xs mt-3 flex items-center gap-2">
-        <span className="w-1.5 h-1.5 rounded-full bg-blue-500/80"></span>
+        <span className="w-1.5 h-1.5 rounded-full bg-[#E63946]/80"></span>
         {subtext}
       </p>
     </div>
@@ -105,7 +105,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         <p className="text-gray-400 text-xs mb-2 font-medium uppercase tracking-wider">{label}</p>
         <div className="space-y-1">
           <p className="text-white text-sm font-bold flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+            <span className="w-2 h-2 rounded-full bg-[#E63946]"></span>
             {payload[0].value.toLocaleString()} Vues
           </p>
           <p className="text-gray-300 text-sm font-medium flex items-center gap-2">
@@ -200,9 +200,9 @@ export const DashboardPage: React.FC = () => {
       {/* --- HEADER --- */}
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4 md:gap-6 mb-8 md:mb-10">
         <div>
-          <h2 className="text-blue-500 font-bold text-xs uppercase tracking-widest mb-2">Vue d'ensemble</h2>
+          <h2 className="text-[#E63946] font-bold text-xs uppercase tracking-widest mb-2">Vue d'ensemble</h2>
           <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-            Performance <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">Agence</span>
+            Performance <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F08080] to-[#E63946]">Agence</span>
           </h1>
         </div>
         
@@ -213,7 +213,7 @@ export const DashboardPage: React.FC = () => {
               onClick={() => setSelectedPeriod(period)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${
                 selectedPeriod === period
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                  ? 'bg-[#E63946] text-white shadow-lg shadow-[#E63946]/20'
                   : 'text-slate-500 hover:text-white hover:bg-[#1E293B]'
               }`}
             >
@@ -269,10 +269,10 @@ export const DashboardPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2 text-xs font-medium text-slate-400">
-                <span className="w-2 h-2 rounded-full bg-blue-500"></span> Vues
+                <span className="w-2 h-2 rounded-full bg-[#E63946]"></span> Vues
               </span>
               <span className="flex items-center gap-2 text-xs font-medium text-slate-400">
-                <span className="w-2 h-2 rounded-full bg-purple-500/50"></span> Visiteurs
+                <span className="w-2 h-2 rounded-full bg-[#457B9D]/50"></span> Visiteurs
               </span>
             </div>
           </div>
@@ -282,11 +282,11 @@ export const DashboardPage: React.FC = () => {
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#E63946" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#E63946" stopOpacity={0}/>},{find:
                   </linearGradient>
                   <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#a855f7" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor="#457B9D" stopOpacity={0.1}/>
                     <stop offset="95%" stopColor="#a855f7" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
@@ -338,7 +338,7 @@ export const DashboardPage: React.FC = () => {
               <div className="group">
                 <div className="flex items-center justify-between text-sm mb-2">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-slate-800 text-slate-300 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                    <div className="p-2 rounded-lg bg-slate-800 text-slate-300 group-hover:bg-[#E63946] group-hover:text-white transition-colors">
                       <Smartphone className="w-4 h-4" />
                     </div>
                     <span className="text-slate-300 font-medium">Mobile</span>
@@ -346,7 +346,7 @@ export const DashboardPage: React.FC = () => {
                   <span className="text-white font-bold">58%</span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 w-[58%] rounded-full"></div>
+                  <div className="h-full bg-[#E63946] w-[58%] rounded-full"></div>
                 </div>
               </div>
 
@@ -383,7 +383,7 @@ export const DashboardPage: React.FC = () => {
           </div>
           
           <Link href="/admin/articles/new">
-            <button className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold tracking-wide transition-all shadow-lg shadow-blue-900/40 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2">
+            <button className="w-full py-3.5 bg-blue-600 hover:bg-[#E63946] text-white rounded-2xl font-bold tracking-wide transition-all shadow-lg shadow-blue-900/40 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2">
               <Plus className="w-5 h-5" />
               NOUVEAU POST
             </button>
@@ -410,8 +410,8 @@ export const DashboardPage: React.FC = () => {
                     <td className="p-4">
                       <div className="flex items-center gap-4">
                         <span className="text-slate-600 font-mono text-xs">{(index + 1).toString().padStart(2, '0')}</span>
-                        <div className="p-2 rounded-lg bg-[#1E293B] group-hover:bg-blue-500/20 group-hover:text-blue-400 transition-colors">
-                          <Globe className="w-4 h-4 text-slate-400 group-hover:text-blue-400" />
+                        <div className="p-2 rounded-lg bg-[#1E293B] group-hover:bg-[#E63946]/20 group-hover:text-[#E63946] transition-colors">
+                          <Globe className="w-4 h-4 text-slate-400 group-hover:text-[#E63946]" />
                         </div>
                         <div>
                           <p className="text-slate-200 font-medium text-sm group-hover:text-white">{page.title}</p>
@@ -443,7 +443,7 @@ export const DashboardPage: React.FC = () => {
               <h3 className="text-lg font-bold text-white">Audience Globale</h3>
               <p className="text-slate-500 text-sm mt-1">Impact géographique</p>
             </div>
-            <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400">
+            <div className="p-2 rounded-xl bg-[#E63946]/10 border border-blue-500/20 text-[#E63946]">
               <MapPin className="w-5 h-5" />
             </div>
           </div>
@@ -451,10 +451,10 @@ export const DashboardPage: React.FC = () => {
           <div className="relative z-10 flex-1 flex items-center justify-center my-8">
             {/* Abstract Map Representation */}
             <div className="relative w-full h-48">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-all duration-700"></div>
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[#E63946]/5 rounded-full blur-3xl group-hover:bg-[#E63946]/10 transition-all duration-700"></div>
               
               {/* Nodes */}
-              <div className="absolute top-[30%] left-[20%] w-3 h-3 bg-blue-500 rounded-full animate-ping opacity-75"></div>
+              <div className="absolute top-[30%] left-[20%] w-3 h-3 bg-[#E63946] rounded-full animate-ping opacity-75"></div>
               <div className="absolute top-[30%] left-[20%] w-3 h-3 bg-blue-400 rounded-full"></div>
               
               <div className="absolute top-[50%] right-[30%] w-2 h-2 bg-purple-500 rounded-full animate-ping opacity-75 delay-300"></div>

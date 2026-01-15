@@ -64,8 +64,8 @@ export const defaultConfig: DashboardConfig = {
     name: 'CMS Dashboard',
     logoText: 'CMS'
   },
-  primaryColor: '#3B82F6', // blue-500
-  accentColor: '#E63946',
+  primaryColor: '#E63946', // Rose/Magenta de la marque
+  accentColor: '#457B9D', // Couleur secondaire pour le contraste
   apiUrl: '/api',
   
   modules: {
