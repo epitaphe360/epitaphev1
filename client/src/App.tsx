@@ -12,7 +12,7 @@ import SolutionPage from "@/pages/solution";
 import NotFound from "@/pages/not-found";
 // CMS Dashboard imports
 import { DashboardLayout } from "../../cms-dashboard/layouts/DashboardLayout";
-import { LoginPage } from "../../cms-dashboard/pages/LoginPage";
+import { NewLoginPage } from "../../cms-dashboard/pages/NewLoginPage";
 import { DashboardPage } from "../../cms-dashboard/pages/DashboardPage";
 import MenuManagement from "../../cms-dashboard/pages/menu/MenuManagement";
 import BlogManagement from "../../cms-dashboard/pages/blog/BlogManagement";
@@ -41,7 +41,7 @@ function Router() {
       <Route path="/solutions/:slug" component={SolutionPage} />
       
       {/* CMS Admin Routes */}
-      <Route path="/admin/login" component={LoginPage} />
+      <Route path="/admin/login" component={NewLoginPage} />
       
       {/* Dashboard */}
       <Route path="/admin">

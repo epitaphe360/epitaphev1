@@ -1,296 +1,650 @@
 import type { Express } from "express";
-import type { PageContent, BlogPost, Solution, NavigationStructure, MenuLink } from "../cms-dashboard/types/website-types";
-
-// Temporary in-memory storage (replace with actual database)
-const mockData = {
-  pages: [] as PageContent[],
-  posts: [] as BlogPost[],
-  solutions: [] as Solution[],
-  navigations: [] as NavigationStructure[]
-};
+import { db } from "./db";
+import { users, articles, events, pages, categories, media, navigationMenus, settings, auditLogs } from "@shared/schema";
+import { eq, desc, and, or, like, sql } from "drizzle-orm";
+import { requireAuth, requireAdmin, generateToken, hashPassword, verifyPassword, type AuthRequest } from "./lib/auth";
 
 export function registerAdminRoutes(app: Express) {
-  // Authentication middleware (simplified)
-  const requireAuth = (req: any, res: any, next: any) => {
-    const token = req.headers.authorization?.replace('Bearer ', '');
-    // TODO: Implement proper JWT verification
-    if (!token) {
-      return res.status(401).json({ error: 'Token manquant' });
-    }
-    next();
-  };
 
-  // ========================
-  // PAGES MANAGEMENT
-  // ========================
-  
-  // Get all pages
-  app.get('/api/admin/pages', requireAuth, (req, res) => {
-    res.json(mockData.pages);
-  });
-
-  // Get page by ID
-  app.get('/api/admin/pages/:id', requireAuth, (req, res) => {
-    const page = mockData.pages.find(p => p.id === req.params.id);
-    if (!page) return res.status(404).json({ error: 'Page non trouvée' });
-    res.json(page);
-  });
-
-  // Create page
-  app.post('/api/admin/pages', requireAuth, (req, res) => {
-    const newPage: PageContent = {
-      ...req.body,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    mockData.pages.push(newPage);
-    res.status(201).json(newPage);
-  });
-
-  // Update page
-  app.put('/api/admin/pages/:id', requireAuth, (req, res) => {
-    const index = mockData.pages.findIndex(p => p.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Page non trouvée' });
-    
-    mockData.pages[index] = {
-      ...mockData.pages[index],
-      ...req.body,
-      updatedAt: new Date()
-    };
-    res.json(mockData.pages[index]);
-  });
-
-  // Update page status
-  app.put('/api/admin/pages/:id/status', requireAuth, (req, res) => {
-    const index = mockData.pages.findIndex(p => p.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Page non trouvée' });
-    
-    mockData.pages[index].status = req.body.status;
-    mockData.pages[index].updatedAt = new Date();
-    res.json(mockData.pages[index]);
-  });
-
-  // Delete page
-  app.delete('/api/admin/pages/:id', requireAuth, (req, res) => {
-    const index = mockData.pages.findIndex(p => p.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Page non trouvée' });
-    
-    mockData.pages.splice(index, 1);
-    res.json({ success: true });
-  });
-
-  // ========================
-  // BLOG MANAGEMENT
-  // ========================
-  
-  // Get all posts
-  app.get('/api/admin/posts', requireAuth, (req, res) => {
-    let posts = mockData.posts;
-    
-    if (req.query.status && req.query.status !== 'all') {
-      posts = posts.filter(p => p.status === req.query.status);
-    }
-    
-    res.json(posts);
-  });
-
-  // Create post
-  app.post('/api/admin/posts', requireAuth, (req, res) => {
-    const newPost: BlogPost = {
-      ...req.body,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    mockData.posts.push(newPost);
-    res.status(201).json(newPost);
-  });
-
-  // Update post
-  app.put('/api/admin/posts/:id', requireAuth, (req, res) => {
-    const index = mockData.posts.findIndex(p => p.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Article non trouvé' });
-    
-    mockData.posts[index] = {
-      ...mockData.posts[index],
-      ...req.body,
-      updatedAt: new Date()
-    };
-    res.json(mockData.posts[index]);
-  });
-
-  // Update post status
-  app.put('/api/admin/posts/:id/status', requireAuth, (req, res) => {
-    const index = mockData.posts.findIndex(p => p.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Article non trouvé' });
-    
-    mockData.posts[index].status = req.body.status;
-    mockData.posts[index].updatedAt = new Date();
-    res.json(mockData.posts[index]);
-  });
-
-  // Delete post
-  app.delete('/api/admin/posts/:id', requireAuth, (req, res) => {
-    const index = mockData.posts.findIndex(p => p.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Article non trouvé' });
-    
-    mockData.posts.splice(index, 1);
-    res.json({ success: true });
-  });
-
-  // ========================
-  // SOLUTIONS MANAGEMENT
-  // ========================
-  
-  // Get all solutions
-  app.get('/api/admin/solutions', requireAuth, (req, res) => {
-    res.json(mockData.solutions.sort((a, b) => a.order - b.order));
-  });
-
-  // Get solution categories
-  app.get('/api/admin/solutions/categories', requireAuth, (req, res) => {
-    const categories = [...new Set(mockData.solutions.map(s => s.category))];
-    res.json(categories);
-  });
-
-  // Create solution
-  app.post('/api/admin/solutions', requireAuth, (req, res) => {
-    const newSolution: Solution = {
-      ...req.body,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    mockData.solutions.push(newSolution);
-    res.status(201).json(newSolution);
-  });
-
-  // Update solution
-  app.put('/api/admin/solutions/:id', requireAuth, (req, res) => {
-    const index = mockData.solutions.findIndex(s => s.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Solution non trouvée' });
-    
-    mockData.solutions[index] = {
-      ...mockData.solutions[index],
-      ...req.body,
-      updatedAt: new Date()
-    };
-    res.json(mockData.solutions[index]);
-  });
-
-  // Update solution status
-  app.put('/api/admin/solutions/:id/status', requireAuth, (req, res) => {
-    const index = mockData.solutions.findIndex(s => s.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Solution non trouvée' });
-    
-    mockData.solutions[index].isActive = req.body.isActive;
-    mockData.solutions[index].updatedAt = new Date();
-    res.json(mockData.solutions[index]);
-  });
-
-  // Delete solution
-  app.delete('/api/admin/solutions/:id', requireAuth, (req, res) => {
-    const index = mockData.solutions.findIndex(s => s.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Solution non trouvée' });
-    
-    mockData.solutions.splice(index, 1);
-    res.json({ success: true });
-  });
-
-  // ========================
-  // NAVIGATION MANAGEMENT
-  // ========================
-  
-  // Get all navigations
-  app.get('/api/admin/navigations', requireAuth, (req, res) => {
-    res.json(mockData.navigations);
-  });
-
-  // Create navigation
-  app.post('/api/admin/navigations', requireAuth, (req, res) => {
-    const newNavigation: NavigationStructure = {
-      ...req.body,
-      id: Date.now().toString(),
-      updatedAt: new Date()
-    };
-    mockData.navigations.push(newNavigation);
-    res.status(201).json(newNavigation);
-  });
-
-  // Update navigation
-  app.put('/api/admin/navigations/:id', requireAuth, (req, res) => {
-    const index = mockData.navigations.findIndex(n => n.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Navigation non trouvée' });
-    
-    mockData.navigations[index] = {
-      ...mockData.navigations[index],
-      ...req.body,
-      updatedAt: new Date()
-    };
-    res.json(mockData.navigations[index]);
-  });
-
-  // Delete navigation
-  app.delete('/api/admin/navigations/:id', requireAuth, (req, res) => {
-    const index = mockData.navigations.findIndex(n => n.id === req.params.id);
-    if (index === -1) return res.status(404).json({ error: 'Navigation non trouvée' });
-    
-    mockData.navigations.splice(index, 1);
-    res.json({ success: true });
-  });
-
-  // ========================
+  // ========================================
   // AUTHENTICATION
-  // ========================
-  
+  // ========================================
+
   // Login
-  app.post('/api/admin/login', (req, res) => {
-    const { email, password } = req.body;
-    
-    // TODO: Implement proper authentication
-    if (email === 'admin@epitaph.ma' && password === 'admin123') {
-      const token = 'mock-jwt-token-' + Date.now();
-      res.json({ 
-        token, 
-        user: { 
-          id: '1', 
-          email, 
-          name: 'Admin', 
-          role: 'ADMIN' 
-        } 
+  app.post('/api/admin/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Email et mot de passe requis' });
+      }
+
+      // Find user by email
+      const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+      if (!user) {
+        return res.status(401).json({ error: 'Identifiants invalides' });
+      }
+
+      // Verify password
+      const isValidPassword = await verifyPassword(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Identifiants invalides' });
+      }
+
+      // Generate JWT token
+      const token = generateToken({
+        userId: user.id,
+        email: user.email,
+        role: user.role,
       });
-    } else {
-      res.status(401).json({ error: 'Identifiants invalides' });
+
+      // Return user data (without password)
+      const { password: _, ...userData } = user;
+
+      res.json({
+        token,
+        user: userData,
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ error: 'Erreur lors de la connexion' });
     }
   });
 
   // Get current user
-  app.get('/api/admin/me', requireAuth, (req, res) => {
-    res.json({ 
-      id: '1', 
-      email: 'admin@epitaph.ma', 
-      name: 'Admin', 
-      role: 'ADMIN' 
-    });
+  app.get('/api/admin/me', requireAuth, async (req: AuthRequest, res) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Non authentifié' });
+      }
+
+      const [user] = await db.select().from(users).where(eq(users.id, req.user.userId)).limit(1);
+
+      if (!user) {
+        return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      }
+
+      const { password: _, ...userData } = user;
+      res.json(userData);
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération de l\'utilisateur' });
+    }
   });
 
-  // Initialize with sample data if empty
-  if (mockData.navigations.length === 0) {
-    mockData.navigations.push({
-      id: '1',
-      name: 'Navigation principale',
-      location: 'header',
-      isActive: true,
-      updatedAt: new Date(),
-      links: [
-        { id: '1', label: 'A propos', href: '/', hash: '#about', hasSubmenu: false, order: 0, isActive: true },
-        { id: '2', label: 'Nos métiers', href: '#', hasSubmenu: true, order: 1, isActive: true, submenu: [] },
-        { id: '3', label: 'Nos solutions', href: '#', hasSubmenu: true, order: 2, isActive: true, submenu: [] },
-        { id: '4', label: 'Nos références', href: '/nos-references', hasSubmenu: false, order: 3, isActive: true },
-        { id: '5', label: 'Ressources', href: '/blog', hasSubmenu: false, order: 4, isActive: true },
-        { id: '6', label: 'Contact', href: '/', hash: '#contact', hasSubmenu: false, order: 5, isActive: true }
-      ]
-    });
-  }
+  // ========================================
+  // ARTICLES MANAGEMENT
+  // ========================================
+
+  // Get all articles
+  app.get('/api/admin/articles', requireAuth, async (req, res) => {
+    try {
+      const { status, search, categoryId, limit = '50', offset = '0' } = req.query;
+
+      let query = db.select().from(articles);
+
+      const conditions = [];
+      if (status && status !== 'all') {
+        conditions.push(eq(articles.status, status as string));
+      }
+      if (search) {
+        conditions.push(
+          or(
+            like(articles.title, `%${search}%`),
+            like(articles.content, `%${search}%`)
+          )
+        );
+      }
+      if (categoryId) {
+        conditions.push(eq(articles.categoryId, categoryId as string));
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      const result = await query
+        .orderBy(desc(articles.createdAt))
+        .limit(parseInt(limit as string))
+        .offset(parseInt(offset as string));
+
+      res.json(result);
+    } catch (error) {
+      console.error('Get articles error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération des articles' });
+    }
+  });
+
+  // Get article by ID
+  app.get('/api/admin/articles/:id', requireAuth, async (req, res) => {
+    try {
+      const [article] = await db.select().from(articles).where(eq(articles.id, req.params.id)).limit(1);
+
+      if (!article) {
+        return res.status(404).json({ error: 'Article non trouvé' });
+      }
+
+      res.json(article);
+    } catch (error) {
+      console.error('Get article error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération de l\'article' });
+    }
+  });
+
+  // Create article
+  app.post('/api/admin/articles', requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const data = {
+        ...req.body,
+        authorId: req.user?.userId,
+        publishedAt: req.body.status === 'PUBLISHED' ? new Date() : null,
+      };
+
+      const [newArticle] = await db.insert(articles).values(data).returning();
+
+      // Log action
+      await db.insert(auditLogs).values({
+        userId: req.user?.userId,
+        action: 'CREATE',
+        entityType: 'article',
+        entityId: newArticle.id,
+        changes: JSON.stringify({ created: data }),
+      });
+
+      res.status(201).json(newArticle);
+    } catch (error) {
+      console.error('Create article error:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de l\'article' });
+    }
+  });
+
+  // Update article
+  app.put('/api/admin/articles/:id', requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const [existing] = await db.select().from(articles).where(eq(articles.id, req.params.id)).limit(1);
+
+      if (!existing) {
+        return res.status(404).json({ error: 'Article non trouvé' });
+      }
+
+      const data = {
+        ...req.body,
+        publishedAt: req.body.status === 'PUBLISHED' && !existing.publishedAt ? new Date() : existing.publishedAt,
+      };
+
+      const [updated] = await db.update(articles)
+        .set(data)
+        .where(eq(articles.id, req.params.id))
+        .returning();
+
+      // Log action
+      await db.insert(auditLogs).values({
+        userId: req.user?.userId,
+        action: 'UPDATE',
+        entityType: 'article',
+        entityId: req.params.id,
+        changes: JSON.stringify({ before: existing, after: updated }),
+      });
+
+      res.json(updated);
+    } catch (error) {
+      console.error('Update article error:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'article' });
+    }
+  });
+
+  // Delete article
+  app.delete('/api/admin/articles/:id', requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const [existing] = await db.select().from(articles).where(eq(articles.id, req.params.id)).limit(1);
+
+      if (!existing) {
+        return res.status(404).json({ error: 'Article non trouvé' });
+      }
+
+      await db.delete(articles).where(eq(articles.id, req.params.id));
+
+      // Log action
+      await db.insert(auditLogs).values({
+        userId: req.user?.userId,
+        action: 'DELETE',
+        entityType: 'article',
+        entityId: req.params.id,
+        changes: JSON.stringify({ deleted: existing }),
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete article error:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de l\'article' });
+    }
+  });
+
+  // ========================================
+  // EVENTS MANAGEMENT
+  // ========================================
+
+  // Get all events
+  app.get('/api/admin/events', requireAuth, async (req, res) => {
+    try {
+      const { status, upcoming, limit = '50', offset = '0' } = req.query;
+
+      let query = db.select().from(events);
+
+      const conditions = [];
+      if (status && status !== 'all') {
+        conditions.push(eq(events.status, status as string));
+      }
+      if (upcoming === 'true') {
+        conditions.push(sql`${events.startDate} >= NOW()`);
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      const result = await query
+        .orderBy(desc(events.startDate))
+        .limit(parseInt(limit as string))
+        .offset(parseInt(offset as string));
+
+      res.json(result);
+    } catch (error) {
+      console.error('Get events error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération des événements' });
+    }
+  });
+
+  // Get event by ID
+  app.get('/api/admin/events/:id', requireAuth, async (req, res) => {
+    try {
+      const [event] = await db.select().from(events).where(eq(events.id, req.params.id)).limit(1);
+
+      if (!event) {
+        return res.status(404).json({ error: 'Événement non trouvé' });
+      }
+
+      res.json(event);
+    } catch (error) {
+      console.error('Get event error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération de l\'événement' });
+    }
+  });
+
+  // Create event
+  app.post('/api/admin/events', requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const data = {
+        ...req.body,
+        organizerId: req.user?.userId,
+      };
+
+      const [newEvent] = await db.insert(events).values(data).returning();
+
+      await db.insert(auditLogs).values({
+        userId: req.user?.userId,
+        action: 'CREATE',
+        entityType: 'event',
+        entityId: newEvent.id,
+        changes: JSON.stringify({ created: data }),
+      });
+
+      res.status(201).json(newEvent);
+    } catch (error) {
+      console.error('Create event error:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de l\'événement' });
+    }
+  });
+
+  // Update event
+  app.put('/api/admin/events/:id', requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const [existing] = await db.select().from(events).where(eq(events.id, req.params.id)).limit(1);
+
+      if (!existing) {
+        return res.status(404).json({ error: 'Événement non trouvé' });
+      }
+
+      const [updated] = await db.update(events)
+        .set(req.body)
+        .where(eq(events.id, req.params.id))
+        .returning();
+
+      await db.insert(auditLogs).values({
+        userId: req.user?.userId,
+        action: 'UPDATE',
+        entityType: 'event',
+        entityId: req.params.id,
+        changes: JSON.stringify({ before: existing, after: updated }),
+      });
+
+      res.json(updated);
+    } catch (error) {
+      console.error('Update event error:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'événement' });
+    }
+  });
+
+  // Delete event
+  app.delete('/api/admin/events/:id', requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const [existing] = await db.select().from(events).where(eq(events.id, req.params.id)).limit(1);
+
+      if (!existing) {
+        return res.status(404).json({ error: 'Événement non trouvé' });
+      }
+
+      await db.delete(events).where(eq(events.id, req.params.id));
+
+      await db.insert(auditLogs).values({
+        userId: req.user?.userId,
+        action: 'DELETE',
+        entityType: 'event',
+        entityId: req.params.id,
+        changes: JSON.stringify({ deleted: existing }),
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete event error:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de l\'événement' });
+    }
+  });
+
+  // ========================================
+  // CATEGORIES MANAGEMENT
+  // ========================================
+
+  // Get all categories
+  app.get('/api/admin/categories', requireAuth, async (req, res) => {
+    try {
+      const result = await db.select().from(categories).orderBy(categories.order, categories.name);
+      res.json(result);
+    } catch (error) {
+      console.error('Get categories error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération des catégories' });
+    }
+  });
+
+  // Create category
+  app.post('/api/admin/categories', requireAuth, async (req, res) => {
+    try {
+      const [newCategory] = await db.insert(categories).values(req.body).returning();
+      res.status(201).json(newCategory);
+    } catch (error) {
+      console.error('Create category error:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de la catégorie' });
+    }
+  });
+
+  // Update category
+  app.put('/api/admin/categories/:id', requireAuth, async (req, res) => {
+    try {
+      const [updated] = await db.update(categories)
+        .set(req.body)
+        .where(eq(categories.id, req.params.id))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: 'Catégorie non trouvée' });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error('Update category error:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de la catégorie' });
+    }
+  });
+
+  // Delete category
+  app.delete('/api/admin/categories/:id', requireAuth, async (req, res) => {
+    try {
+      await db.delete(categories).where(eq(categories.id, req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete category error:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de la catégorie' });
+    }
+  });
+
+  // ========================================
+  // USERS MANAGEMENT (Admin only)
+  // ========================================
+
+  // Get all users
+  app.get('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const result = await db.select({
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        role: users.role,
+        avatar: users.avatar,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+      }).from(users).orderBy(desc(users.createdAt));
+
+      res.json(result);
+    } catch (error) {
+      console.error('Get users error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération des utilisateurs' });
+    }
+  });
+
+  // Create user
+  app.post('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { email, password, name, role } = req.body;
+
+      // Hash password
+      const hashedPassword = await hashPassword(password);
+
+      const [newUser] = await db.insert(users).values({
+        email,
+        password: hashedPassword,
+        name,
+        role: role || 'USER',
+      }).returning();
+
+      const { password: _, ...userData } = newUser;
+      res.status(201).json(userData);
+    } catch (error) {
+      console.error('Create user error:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
+    }
+  });
+
+  // Update user
+  app.put('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { password, ...updateData } = req.body;
+
+      // If password is being updated, hash it
+      if (password) {
+        updateData.password = await hashPassword(password);
+      }
+
+      const [updated] = await db.update(users)
+        .set(updateData)
+        .where(eq(users.id, req.params.id))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      }
+
+      const { password: _, ...userData } = updated;
+      res.json(userData);
+    } catch (error) {
+      console.error('Update user error:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'utilisateur' });
+    }
+  });
+
+  // Delete user
+  app.delete('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      await db.delete(users).where(eq(users.id, req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete user error:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de l\'utilisateur' });
+    }
+  });
+
+  // ========================================
+  // MEDIA MANAGEMENT
+  // ========================================
+
+  // Get all media
+  app.get('/api/admin/media', requireAuth, async (req, res) => {
+    try {
+      const { folder, search, limit = '50', offset = '0' } = req.query;
+
+      let query = db.select().from(media);
+
+      const conditions = [];
+      if (folder) {
+        conditions.push(eq(media.folder, folder as string));
+      }
+      if (search) {
+        conditions.push(
+          or(
+            like(media.originalName, `%${search}%`),
+            like(media.alt, `%${search}%`)
+          )
+        );
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      const result = await query
+        .orderBy(desc(media.createdAt))
+        .limit(parseInt(limit as string))
+        .offset(parseInt(offset as string));
+
+      res.json(result);
+    } catch (error) {
+      console.error('Get media error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération des médias' });
+    }
+  });
+
+  // ========================================
+  // PAGES MANAGEMENT
+  // ========================================
+
+  // Get all pages
+  app.get('/api/admin/pages', requireAuth, async (req, res) => {
+    try {
+      const result = await db.select().from(pages).orderBy(pages.order, pages.title);
+      res.json(result);
+    } catch (error) {
+      console.error('Get pages error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération des pages' });
+    }
+  });
+
+  // Get page by ID
+  app.get('/api/admin/pages/:id', requireAuth, async (req, res) => {
+    try {
+      const [page] = await db.select().from(pages).where(eq(pages.id, req.params.id)).limit(1);
+
+      if (!page) {
+        return res.status(404).json({ error: 'Page non trouvée' });
+      }
+
+      res.json(page);
+    } catch (error) {
+      console.error('Get page error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération de la page' });
+    }
+  });
+
+  // Create page
+  app.post('/api/admin/pages', requireAuth, async (req: AuthRequest, res) => {
+    try {
+      const data = {
+        ...req.body,
+        authorId: req.user?.userId,
+        publishedAt: req.body.status === 'PUBLISHED' ? new Date() : null,
+      };
+
+      const [newPage] = await db.insert(pages).values(data).returning();
+      res.status(201).json(newPage);
+    } catch (error) {
+      console.error('Create page error:', error);
+      res.status(500).json({ error: 'Erreur lors de la création de la page' });
+    }
+  });
+
+  // Update page
+  app.put('/api/admin/pages/:id', requireAuth, async (req, res) => {
+    try {
+      const [updated] = await db.update(pages)
+        .set(req.body)
+        .where(eq(pages.id, req.params.id))
+        .returning();
+
+      if (!updated) {
+        return res.status(404).json({ error: 'Page non trouvée' });
+      }
+
+      res.json(updated);
+    } catch (error) {
+      console.error('Update page error:', error);
+      res.status(500).json({ error: 'Erreur lors de la mise à jour de la page' });
+    }
+  });
+
+  // Delete page
+  app.delete('/api/admin/pages/:id', requireAuth, async (req, res) => {
+    try {
+      await db.delete(pages).where(eq(pages.id, req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete page error:', error);
+      res.status(500).json({ error: 'Erreur lors de la suppression de la page' });
+    }
+  });
+
+  // ========================================
+  // AUDIT LOGS (Admin only)
+  // ========================================
+
+  app.get('/api/admin/audit-logs', requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { entityType, entityId, userId, limit = '100', offset = '0' } = req.query;
+
+      let query = db.select().from(auditLogs);
+
+      const conditions = [];
+      if (entityType) {
+        conditions.push(eq(auditLogs.entityType, entityType as string));
+      }
+      if (entityId) {
+        conditions.push(eq(auditLogs.entityId, entityId as string));
+      }
+      if (userId) {
+        conditions.push(eq(auditLogs.userId, userId as string));
+      }
+
+      if (conditions.length > 0) {
+        query = query.where(and(...conditions));
+      }
+
+      const result = await query
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(parseInt(limit as string))
+        .offset(parseInt(offset as string));
+
+      res.json(result);
+    } catch (error) {
+      console.error('Get audit logs error:', error);
+      res.status(500).json({ error: 'Erreur lors de la récupération des logs' });
+    }
+  });
 }
