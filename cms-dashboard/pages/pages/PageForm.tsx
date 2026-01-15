@@ -3,15 +3,16 @@
 // ========================================
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical } from 'lucide-react';
+import { useNavigate, useParams } from '../../hooks/useRouterParams';
+import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { Input, Textarea, Select } from '../../components/Input';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { useToast } from '../../components/Toast';
-import { getApi } from '../../lib/api';
+import { getApi } from '../../lib/simple-api';
 import { Page, PageSection } from '../../types';
+import { PAGE_TEMPLATES, getTemplateById } from '../../types/page-templates';
 
 interface PageFormData {
   title: string;
@@ -49,6 +50,7 @@ export const PageForm: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   
   const [formData, setFormData] = useState<PageFormData>({
     title: '',
@@ -136,6 +138,23 @@ export const PageForm: React.FC = () => {
     }));
   };
 
+  const applyTemplate = (templateId: string) => {
+    const template = getTemplateById(templateId);
+    if (!template) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      title: prev.title || template.name,
+      slug: prev.slug || generateSlug(template.name),
+      sections: template.sections.map((section, index) => ({
+        ...section,
+        id: `temp-${Date.now()}-${index}`,
+      })) as PageSection[],
+    }));
+
+    setShowTemplateSelector(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -207,10 +226,25 @@ export const PageForm: React.FC = () => {
               <Input
                 label="Titre"
                 value={formData.title}
-                onChange={handleTitleChange}
+                onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
                 placeholder="Titre de la page"
-                required
               />
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowTemplateSelector(true)}
+                  type="button"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Modèle
+                </Button>
+                <Button variant="secondary" size="sm" onClick={addSection} type="button">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Section
+                </Button>
+              </div>
 
               <Input
                 label="Slug (URL)"
@@ -310,6 +344,48 @@ export const PageForm: React.FC = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
+
+      {/* Template Selector Modal */}
+      {showTemplateSelector && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">Choisir un modèle</h2>
+              <button
+                onClick={() => setShowTemplateSelector(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {PAGE_TEMPLATES.map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => applyTemplate(template.id)}
+                    className="text-left p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                      <h3 className="font-semibold text-gray-900">{template.name}</h3>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-3">{template.description}</p>
+                    <div className="text-xs text-gray-500">
+                      {template.sections.length} section{template.sections.length > 1 ? 's' : ''}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+              <Button variant="secondary" onClick={() => setShowTemplateSelector(false)}>
+                Annuler
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
               <CardTitle>Publication</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

@@ -24,6 +24,7 @@ import {
   Users,
   Bell,
   Zap,
+  Paintbrush,
 } from 'lucide-react';
 import { useDashboardConfig } from '../config';
 
@@ -144,6 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
     articles: <FileText className="w-5 h-5" />,
     events: <Calendar className="w-5 h-5" />,
     pages: <Files className="w-5 h-5" />,
+    plasmic: <Paintbrush className="w-5 h-5" />,
     media: <Image className="w-5 h-5" />,
     settings: <Settings className="w-5 h-5" />,
     analytics: <BarChart3 className="w-5 h-5" />,
@@ -166,6 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user, onLogout }) => {
         { to: '/admin/events', label: 'Événements' },
       ]
     },
+    { href: '/admin/visual-editor', label: 'Éditeur Visuel', icon: 'plasmic' },
     { href: '/admin/media', label: 'Médias', icon: 'media', badge: 12 },
     { href: '/admin/comments', label: 'Commentaires', icon: 'comments', badge: 3 },
     { href: '/admin/analytics', label: 'Analytics', icon: 'analytics' },

@@ -8,7 +8,7 @@ import { Table } from '../../components/Table';
 import { Badge } from '../../components/Badge';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { Solution, SEOData } from '../../types/website-types';
-import { useApi } from '../../hooks/useApi';
+import { useApi } from '../../lib/simple-api';
 
 export const SolutionManagement: React.FC = () => {
   const [solutions, setSolutions] = useState<Solution[]>([]);

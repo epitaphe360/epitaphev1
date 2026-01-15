@@ -14,6 +14,7 @@ interface ModalProps {
   children: React.ReactNode;
   footer?: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   closeOnOverlayClick?: boolean;
   showCloseButton?: boolean;
 }
@@ -34,9 +35,12 @@ export const Modal: React.FC<ModalProps> = ({
   children,
   footer,
   size = 'md',
+  maxWidth,
   closeOnOverlayClick = true,
   showCloseButton = true,
 }) => {
+  const finalSize = maxWidth || size;
+
   // Fermer avec Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -77,7 +81,7 @@ export const Modal: React.FC<ModalProps> = ({
           relative w-full mx-4 bg-white rounded-xl shadow-2xl
           transform transition-all duration-300
           animate-in fade-in zoom-in-95
-          ${sizeStyles[size]}
+          ${sizeStyles[finalSize]}
         `}
       >
         {/* Header */}

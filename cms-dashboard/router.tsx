@@ -8,11 +8,17 @@ import { RouteObject, Navigate } from 'react-router-dom';
 // Import pages
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { LoginPage } from './pages/LoginPage';
+import Dashboard from './pages/Dashboard';
 import { DashboardPage } from './pages/DashboardPage';
 import { MediaLibrary } from './pages/MediaLibrary';
 import { ArticlesList, ArticleForm } from './pages/articles';
 import { EventsList, EventForm } from './pages/events';
 import { PagesList, PageForm } from './pages/pages';
+import { CategoriesList } from './pages/categories';
+import { UsersList } from './pages/users';
+import { GeneralSettings, SEOSettings, IntegrationSettings } from './pages/settings';
+import { VisualEditorManagement } from './pages/plasmic';
+import GrapesJSEditor from './pages/plasmic/GrapesJSEditor';
 
 // Auth guard component
 interface ProtectedRouteProps {
@@ -93,10 +99,42 @@ export const getDashboardRoutes = (
           path: 'pages/:id/edit',
           element: <PageForm />,
         },
+        // Visual Editor (GrapesJS)
+        {
+          path: 'visual-editor',
+          element: <VisualEditorManagement />,
+        },
+        {
+          path: 'visual-editor/edit/:pageId',
+          element: <GrapesJSEditor />,
+        },
         // Media
         {
           path: 'media',
           element: <MediaLibrary />,
+        },
+        // Categories
+        {
+          path: 'categories',
+          element: <CategoriesList />,
+        },
+        // Users
+        {
+          path: 'users',
+          element: <UsersList />,
+        },
+        // Settings
+        {
+          path: 'settings/general',
+          element: <GeneralSettings />,
+        },
+        {
+          path: 'settings/seo',
+          element: <SEOSettings />,
+        },
+        {
+          path: 'settings/integrations',
+          element: <IntegrationSettings />,
         },
       ],
     },

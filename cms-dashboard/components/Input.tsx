@@ -11,10 +11,25 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   hint?: string;
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
+  multiline?: boolean;
+  rows?: number;
+  help?: string;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, hint, icon, iconPosition = 'left', className = '', ...props }, ref) => {
+export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
+  ({ label, error, hint, help, icon, iconPosition = 'left', className = '', multiline, rows, ...props }, ref) => {
+    const finalHint = help || hint;
+    const inputClasses = `
+      w-full px-4 py-2 border rounded-lg
+      transition-colors duration-200
+      focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
+      disabled:bg-gray-100 disabled:cursor-not-allowed
+      ${icon && iconPosition === 'left' ? 'pl-10' : ''}
+      ${icon && iconPosition === 'right' ? 'pr-10' : ''}
+      ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}
+      ${className}
+    `;
+
     return (
       <div className="w-full">
         {label && (
@@ -25,26 +40,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative">
           {icon && iconPosition === 'left' && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <div className={`absolute ${multiline ? 'top-3' : 'inset-y-0'} left-0 pl-3 flex items-center pointer-events-none text-gray-400`}>
               {icon}
             </div>
           )}
-          <input
-            ref={ref}
-            className={`
-              w-full px-4 py-2 border rounded-lg
-              transition-colors duration-200
-              focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-              disabled:bg-gray-100 disabled:cursor-not-allowed
-              ${icon && iconPosition === 'left' ? 'pl-10' : ''}
-              ${icon && iconPosition === 'right' ? 'pr-10' : ''}
-              ${error ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'}
-              ${className}
-            `}
-            {...props}
-          />
+          {multiline ? (
+            <textarea
+              ref={ref as any}
+              className={inputClasses}
+              rows={rows || 4}
+              {...(props as any)}
+            />
+          ) : (
+            <input
+              ref={ref as React.Ref<HTMLInputElement>}
+              className={inputClasses}
+              {...props}
+            />
+          )}
           {icon && iconPosition === 'right' && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+            <div className={`absolute ${multiline ? 'top-3' : 'inset-y-0'} right-0 pr-3 flex items-center pointer-events-none text-gray-400`}>
               {icon}
             </div>
           )}
@@ -55,8 +70,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {error}
           </p>
         )}
-        {hint && !error && (
-          <p className="mt-1 text-sm text-gray-500">{hint}</p>
+        {finalHint && !error && (
+          <p className="mt-1 text-sm text-gray-500">{finalHint}</p>
         )}
       </div>
     );

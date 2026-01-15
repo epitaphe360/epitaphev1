@@ -127,11 +127,13 @@ interface UsePaginationState<T> {
   loading: boolean;
   error: string | null;
   page: number;
+  limit: number;
   totalPages: number;
   total: number;
   hasMore: boolean;
   nextPage: () => void;
   prevPage: () => void;
+  setPage: (page: number) => void;
   goToPage: (page: number) => void;
   refetch: () => Promise<void>;
 }
@@ -176,13 +178,38 @@ export function usePagination<T>(
     loading,
     error,
     page,
+    limit,
     totalPages,
     total,
     hasMore: page < totalPages,
     nextPage: () => setPage((p) => Math.min(p + 1, totalPages)),
     prevPage: () => setPage((p) => Math.max(p - 1, 1)),
+    setPage: (p: number) => setPage(Math.max(1, Math.min(p, totalPages))),
     goToPage: (p: number) => setPage(Math.max(1, Math.min(p, totalPages))),
     refetch: fetch,
+  };
+}
+
+// Hook de pagination simple (état seulement)
+export function useSimplePagination(totalItems: number, limitItems: number = 10) {
+  const [page, setPage] = useState(1);
+  const [limit] = useState(limitItems);
+
+  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+
+  const nextPage = () => setPage((p) => Math.min(p + 1, totalPages));
+  const prevPage = () => setPage((p) => Math.max(p - 1, 1));
+  const goToPage = (p: number) => setPage(Math.max(1, Math.min(p, totalPages)));
+
+  return {
+    page,
+    setPage,
+    limit,
+    totalPages,
+    nextPage,
+    prevPage,
+    goToPage,
+    hasMore: page < totalPages
   };
 }
 

@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { ChevronUp, ChevronDown, MoreVertical, Loader2 } from 'lucide-react';
+import { Button } from './Button';
 
 export interface Column<T> {
   key: keyof T | string;
@@ -12,6 +13,14 @@ export interface Column<T> {
   sortable?: boolean;
   width?: string;
   align?: 'left' | 'center' | 'right';
+}
+
+interface Action<T> {
+  label: string;
+  icon: React.ReactNode;
+  onClick: (item: T) => void;
+  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'ghost';
+  condition?: (item: T) => boolean;
 }
 
 export interface TableProps<T> {
@@ -26,6 +35,7 @@ export interface TableProps<T> {
   onSort?: (column: string) => void;
   stickyHeader?: boolean;
   striped?: boolean;
+  actions?: ((item: T) => React.ReactNode) | Action<T>[];
 }
 
 export function Table<T extends Record<string, any>>({
@@ -40,6 +50,7 @@ export function Table<T extends Record<string, any>>({
   onSort,
   stickyHeader = false,
   striped = false,
+  actions,
 }: TableProps<T>) {
   const getRowKey = (item: T, index: number): string => {
     if (typeof rowKey === 'function') {
@@ -108,6 +119,7 @@ export function Table<T extends Record<string, any>>({
                 </div>
               </th>
             ))}
+            {actions && <th className="px-4 py-3 w-12"></th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-200">
@@ -134,6 +146,28 @@ export function Table<T extends Record<string, any>>({
                     : getCellValue(item, String(column.key))}
                 </td>
               ))}
+              {actions && (
+                <td className="px-4 py-4 text-sm text-gray-900 text-right">
+                  {typeof actions === 'function' ? actions(item) : (
+                    <div className="flex justify-end gap-2">
+                      {actions.filter(a => !a.condition || a.condition(item)).map((action, i) => (
+                        <Button
+                          key={i}
+                          variant={(action.variant as any) || 'ghost'}
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            action.onClick(item);
+                          }}
+                          title={action.label}
+                        >
+                          {action.icon}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

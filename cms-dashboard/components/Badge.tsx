@@ -6,7 +6,7 @@ import React from 'react';
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info';
+  variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info';
   size?: 'sm' | 'md' | 'lg';
   dot?: boolean;
   removable?: boolean;
@@ -16,6 +16,7 @@ interface BadgeProps {
 const variantStyles = {
   default: 'bg-gray-100 text-gray-700',
   primary: 'bg-primary-100 text-primary-700',
+  secondary: 'bg-gray-200 text-gray-800',
   success: 'bg-green-100 text-green-700',
   warning: 'bg-yellow-100 text-yellow-700',
   danger: 'bg-red-100 text-red-700',
@@ -25,6 +26,7 @@ const variantStyles = {
 const dotColors = {
   default: 'bg-gray-500',
   primary: 'bg-primary-500',
+  secondary: 'bg-gray-600',
   success: 'bg-green-500',
   warning: 'bg-yellow-500',
   danger: 'bg-red-500',

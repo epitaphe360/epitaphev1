@@ -2,7 +2,7 @@
 // CMS Dashboard - API Client
 // ========================================
 
-import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import { useAuthStore } from '../store/authStore';
 
 interface ApiClientConfig {
@@ -51,45 +51,47 @@ export const createApiClient = (config: ApiClientConfig): AxiosInstance => {
 };
 
 // API Helper functions
+const getData = (promise: Promise<AxiosResponse>) => promise.then(response => response.data);
+
 export const apiHelpers = {
   // Articles
   articles: (client: AxiosInstance) => ({
     getAll: (params?: { page?: number; limit?: number; status?: string }) =>
-      client.get('/articles', { params }),
-    getById: (id: string) => client.get(`/articles/${id}`),
-    getBySlug: (slug: string) => client.get(`/articles/slug/${slug}`),
-    create: (data: any) => client.post('/articles', data),
-    update: (id: string, data: any) => client.put(`/articles/${id}`, data),
-    delete: (id: string) => client.delete(`/articles/${id}`),
+      getData(client.get('/articles', { params })),
+    getById: (id: string) => getData(client.get(`/articles/${id}`)),
+    getBySlug: (slug: string) => getData(client.get(`/articles/slug/${slug}`)),
+    create: (data: any) => getData(client.post('/articles', data)),
+    update: (id: string, data: any) => getData(client.put(`/articles/${id}`, data)),
+    delete: (id: string) => getData(client.delete(`/articles/${id}`)),
   }),
 
   // Events
   events: (client: AxiosInstance) => ({
     getAll: (params?: { page?: number; limit?: number; status?: string }) =>
-      client.get('/events', { params }),
-    getById: (id: string) => client.get(`/events/${id}`),
-    getBySlug: (slug: string) => client.get(`/events/slug/${slug}`),
-    create: (data: any) => client.post('/events', data),
-    update: (id: string, data: any) => client.put(`/events/${id}`, data),
-    delete: (id: string) => client.delete(`/events/${id}`),
+      getData(client.get('/events', { params })),
+    getById: (id: string) => getData(client.get(`/events/${id}`)),
+    getBySlug: (slug: string) => getData(client.get(`/events/slug/${slug}`)),
+    create: (data: any) => getData(client.post('/events', data)),
+    update: (id: string, data: any) => getData(client.put(`/events/${id}`, data)),
+    delete: (id: string) => getData(client.delete(`/events/${id}`)),
   }),
 
   // Pages
   pages: (client: AxiosInstance) => ({
     getAll: (params?: { status?: string }) =>
-      client.get('/pages', { params }),
-    getById: (id: string) => client.get(`/pages/${id}`),
-    getBySlug: (slug: string) => client.get(`/pages/slug/${slug}`),
-    create: (data: any) => client.post('/pages', data),
-    update: (id: string, data: any) => client.put(`/pages/${id}`, data),
-    delete: (id: string) => client.delete(`/pages/${id}`),
+      getData(client.get('/pages', { params })),
+    getById: (id: string) => getData(client.get(`/pages/${id}`)),
+    getBySlug: (slug: string) => getData(client.get(`/pages/slug/${slug}`)),
+    create: (data: any) => getData(client.post('/pages', data)),
+    update: (id: string, data: any) => getData(client.put(`/pages/${id}`, data)),
+    delete: (id: string) => getData(client.delete(`/pages/${id}`)),
   }),
 
   // Media
   media: (client: AxiosInstance) => ({
     getAll: (params?: { page?: number; limit?: number; type?: string }) =>
-      client.get('/media', { params }),
-    getById: (id: string) => client.get(`/media/${id}`),
+      getData(client.get('/media', { params })),
+    getById: (id: string) => getData(client.get(`/media/${id}`)),
     upload: (file: File, onProgress?: (progress: number) => void) => {
       const formData = new FormData();
       formData.append('file', file);
@@ -102,45 +104,67 @@ export const apiHelpers = {
             onProgress?.(progress);
           }
         },
-      });
+      }).then(response => response.data);
     },
-    delete: (id: string) => client.delete(`/media/${id}`),
+    delete: (id: string) => getData(client.delete(`/media/${id}`)),
     updateMeta: (id: string, data: { alt?: string; caption?: string }) =>
-      client.patch(`/media/${id}`, data),
+      getData(client.patch(`/media/${id}`, data)),
   }),
 
   // Auth
   auth: (client: AxiosInstance) => ({
     login: (email: string, password: string) =>
-      client.post('/auth/login', { email, password }),
+      getData(client.post('/auth/login', { email, password })),
     register: (data: { name: string; email: string; password: string }) =>
-      client.post('/auth/register', data),
-    me: () => client.get('/auth/me'),
+      getData(client.post('/auth/register', data)),
+    me: () => getData(client.get('/auth/me')),
     updateProfile: (data: { name?: string; email?: string }) =>
-      client.patch('/auth/profile', data),
+      getData(client.patch('/auth/profile', data)),
     changePassword: (data: { currentPassword: string; newPassword: string }) =>
-      client.post('/auth/change-password', data),
+      getData(client.post('/auth/change-password', data)),
   }),
 
   // Stats
   stats: (client: AxiosInstance) => ({
-    getDashboard: () => client.get('/stats/dashboard'),
+    getDashboard: () => getData(client.get('/stats/dashboard')),
   }),
 };
 
+export type ExtendedApiClient = AxiosInstance & {
+  articles: ReturnType<typeof apiHelpers.articles>;
+  events: ReturnType<typeof apiHelpers.events>;
+  pages: ReturnType<typeof apiHelpers.pages>;
+  media: ReturnType<typeof apiHelpers.media>;
+  auth: ReturnType<typeof apiHelpers.auth>;
+  stats: ReturnType<typeof apiHelpers.stats>;
+};
+
 // Export default instance
-let defaultClient: AxiosInstance | null = null;
+let defaultClient: ExtendedApiClient | null = null;
 
 export const initializeApi = (config: ApiClientConfig) => {
-  defaultClient = createApiClient(config);
+  const client = createApiClient(config);
+  defaultClient = attachModules(client);
   return defaultClient;
 };
 
-export const getApi = () => {
+export const getApi = (): ExtendedApiClient => {
   if (!defaultClient) {
-    throw new Error('API client not initialized. Call initializeApi() first.');
+    throw new Error('API Client not initialized. Call initializeApi first.');
   }
   return defaultClient;
 };
+
+const attachModules = (client: AxiosInstance): ExtendedApiClient => {
+  return Object.assign(client, {
+    articles: apiHelpers.articles(client),
+    events: apiHelpers.events(client),
+    pages: apiHelpers.pages(client),
+    media: apiHelpers.media(client),
+    auth: apiHelpers.auth(client),
+    stats: apiHelpers.stats(client),
+  });
+};
+
 
 export default { createApiClient, apiHelpers, initializeApi, getApi };

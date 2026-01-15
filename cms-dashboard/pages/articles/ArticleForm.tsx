@@ -3,7 +3,7 @@
 // ========================================
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from '../../hooks/useRouterParams';
 import { ArrowLeft, Save, Eye } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/Card';
 import { Button } from '../../components/Button';
@@ -13,6 +13,7 @@ import { FileUpload, ImagePreview } from '../../components/FileUpload';
 import { useToast } from '../../components/Toast';
 import { getApi } from '../../lib/api';
 import { Article, ArticleFormData } from '../../types';
+import { ARTICLE_TEMPLATES, ArticleTemplate } from '../../types/templates';
 
 export const ArticleForm: React.FC = () => {
   const { id } = useParams();
@@ -23,6 +24,8 @@ export const ArticleForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<ArticleTemplate>('STANDARD');
+  const [templateData, setTemplateData] = useState<any>({});
   
   const [formData, setFormData] = useState<ArticleFormData>({
     title: '',
@@ -103,11 +106,17 @@ export const ArticleForm: React.FC = () => {
 
     try {
       const api = getApi();
+      const dataToSave = {
+        ...formData,
+        template: selectedTemplate,
+        templateData,
+      };
+      
       if (isEditing) {
-        await api.articles.update(id!, formData);
+        await api.articles.update(id!, dataToSave);
         toast.success('Succès', 'Article mis à jour');
       } else {
-        await api.articles.create(formData);
+        await api.articles.create(dataToSave);
         toast.success('Succès', 'Article créé');
       }
       navigate('/admin/articles');
@@ -129,6 +138,259 @@ export const ArticleForm: React.FC = () => {
       toast.success('Succès', 'Image uploadée');
     } catch (error) {
       toast.error('Erreur', 'Impossible d\'uploader l\'image');
+    }
+  };
+
+  const renderTemplateFields = () => {
+    switch (selectedTemplate) {
+      case 'GALLERY':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Galerie</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Ajoutez plusieurs images dans le contenu principal avec l'éditeur
+              </p>
+            </CardContent>
+          </Card>
+        );
+
+      case 'VIDEO':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Vidéo</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="URL de la vidéo"
+                placeholder="https://youtube.com/watch?v=..."
+                value={templateData.videoUrl || ''}
+                onChange={(e) => setTemplateData({ ...templateData, videoUrl: e.target.value })}
+              />
+              <Textarea
+                label="Code d'intégration (optionnel)"
+                placeholder="<iframe src=...></iframe>"
+                value={templateData.embedCode || ''}
+                onChange={(e) => setTemplateData({ ...templateData, embedCode: e.target.value })}
+                rows={3}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'QUOTE':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Citation</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Textarea
+                label="Citation"
+                placeholder="Le texte de la citation..."
+                value={templateData.quote || ''}
+                onChange={(e) => setTemplateData({ ...templateData, quote: e.target.value })}
+                rows={3}
+              />
+              <Input
+                label="Auteur"
+                placeholder="Nom de l'auteur"
+                value={templateData.author || ''}
+                onChange={(e) => setTemplateData({ ...templateData, author: e.target.value })}
+              />
+              <Input
+                label="Titre/Fonction (optionnel)"
+                placeholder="PDG, Écrivain, etc."
+                value={templateData.authorTitle || ''}
+                onChange={(e) => setTemplateData({ ...templateData, authorTitle: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'LINK':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Partage de Lien</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="URL du lien"
+                placeholder="https://example.com"
+                value={templateData.linkUrl || ''}
+                onChange={(e) => setTemplateData({ ...templateData, linkUrl: e.target.value })}
+              />
+              <Input
+                label="Titre du lien"
+                placeholder="Titre accrocheur"
+                value={templateData.linkTitle || ''}
+                onChange={(e) => setTemplateData({ ...templateData, linkTitle: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'INTERVIEW':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Interview</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Nom de l'interviewé"
+                placeholder="Jean Dupont"
+                value={templateData.interviewee || ''}
+                onChange={(e) => setTemplateData({ ...templateData, interviewee: e.target.value })}
+              />
+              <Input
+                label="Titre/Fonction"
+                placeholder="CEO de XYZ Corp"
+                value={templateData.intervieweeTitle || ''}
+                onChange={(e) => setTemplateData({ ...templateData, intervieweeTitle: e.target.value })}
+              />
+              <p className="text-sm text-gray-600">
+                Ajoutez les questions et réponses dans le contenu principal
+              </p>
+            </CardContent>
+          </Card>
+        );
+
+      case 'REVIEW':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Critique</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <Input
+                  label="Note"
+                  type="number"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  placeholder="8.5"
+                  value={templateData.rating || ''}
+                  onChange={(e) => setTemplateData({ ...templateData, rating: parseFloat(e.target.value) })}
+                />
+                <Input
+                  label="Note maximale"
+                  type="number"
+                  value="10"
+                  disabled
+                />
+              </div>
+              <Textarea
+                label="Verdict final"
+                placeholder="Résumé de la critique..."
+                value={templateData.verdict || ''}
+                onChange={(e) => setTemplateData({ ...templateData, verdict: e.target.value })}
+                rows={3}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'TUTORIAL':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Tutoriel</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Select
+                label="Niveau de difficulté"
+                value={templateData.difficulty || 'beginner'}
+                onChange={(e) => setTemplateData({ ...templateData, difficulty: e.target.value })}
+                options={[
+                  { value: 'beginner', label: 'Débutant' },
+                  { value: 'intermediate', label: 'Intermédiaire' },
+                  { value: 'advanced', label: 'Avancé' },
+                ]}
+              />
+              <Input
+                label="Durée estimée"
+                placeholder="30 minutes"
+                value={templateData.duration || ''}
+                onChange={(e) => setTemplateData({ ...templateData, duration: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'CASE_STUDY':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Étude de Cas</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Client"
+                placeholder="Nom du client"
+                value={templateData.client || ''}
+                onChange={(e) => setTemplateData({ ...templateData, client: e.target.value })}
+              />
+              <Input
+                label="Secteur"
+                placeholder="E-commerce, Tech, etc."
+                value={templateData.industry || ''}
+                onChange={(e) => setTemplateData({ ...templateData, industry: e.target.value })}
+              />
+              <Textarea
+                label="Problématique"
+                placeholder="Quel était le problème ?"
+                value={templateData.problem || ''}
+                onChange={(e) => setTemplateData({ ...templateData, problem: e.target.value })}
+                rows={3}
+              />
+              <Textarea
+                label="Solution"
+                placeholder="Comment avez-vous résolu le problème ?"
+                value={templateData.solution || ''}
+                onChange={(e) => setTemplateData({ ...templateData, solution: e.target.value })}
+                rows={3}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'NEWS':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Actualité</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Source"
+                placeholder="Nom de la source"
+                value={templateData.source || ''}
+                onChange={(e) => setTemplateData({ ...templateData, source: e.target.value })}
+              />
+              <Input
+                label="Date de l'événement"
+                type="date"
+                value={templateData.eventDate || ''}
+                onChange={(e) => setTemplateData({ ...templateData, eventDate: e.target.value })}
+              />
+              <Input
+                label="Lieu (optionnel)"
+                placeholder="Paris, France"
+                value={templateData.location || ''}
+                onChange={(e) => setTemplateData({ ...templateData, location: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      default:
+        return null;
     }
   };
 
@@ -202,6 +464,16 @@ export const ArticleForm: React.FC = () => {
                 rows={3}
               />
 
+              <Select
+                label="Type d'article"
+                value={selectedTemplate}
+                onChange={(e) => setSelectedTemplate(e.target.value as ArticleTemplate)}
+                options={ARTICLE_TEMPLATES.map((t) => ({
+                  value: t.value,
+                  label: `${t.label} - ${t.description}`,
+                }))}
+              />
+
               <RichTextEditor
                 label="Contenu"
                 value={formData.content}
@@ -209,6 +481,9 @@ export const ArticleForm: React.FC = () => {
               />
             </CardContent>
           </Card>
+
+          {/* Template-specific fields */}
+          {renderTemplateFields()}
 
           {/* SEO */}
           <Card>

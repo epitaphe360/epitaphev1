@@ -3,7 +3,8 @@
 // ========================================
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from '../../hooks/useRouterParams';
+import { Link } from 'wouter';
 import { Plus, Edit, Trash2, Eye, Calendar, MapPin, Clock } from 'lucide-react';
 import { Card, CardContent } from '../../components/Card';
 import { Button } from '../../components/Button';
@@ -13,7 +14,7 @@ import { StatusBadge } from '../../components/Badge';
 import { ConfirmDialog } from '../../components/Modal';
 import { useToast } from '../../components/Toast';
 import { getApi } from '../../lib/api';
-import { usePagination, useDebounce } from '../../hooks/useApi';
+import { useSimplePagination, useDebounce } from '../../hooks/useApi';
 import { Event } from '../../types';
 
 export const EventsList: React.FC = () => {
@@ -28,7 +29,7 @@ export const EventsList: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const debouncedSearch = useDebounce(search, 300);
-  const { page, setPage, limit, totalPages } = usePagination(total);
+  const { page, setPage, limit, totalPages } = useSimplePagination(total);
 
   useEffect(() => {
     loadEvents();

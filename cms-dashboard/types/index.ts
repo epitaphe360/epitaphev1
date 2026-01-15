@@ -24,11 +24,14 @@ export interface Article {
   publishedAt?: string;
   author?: User;
   authorId: string;
+  tag?: string; 
   categoryId?: string;
   category?: Category;
   tags?: Tag[];
   createdAt: string;
   updatedAt: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface Category {
@@ -55,9 +58,15 @@ export interface Event {
   startDate: string;
   endDate?: string;
   location?: string;
+  address?: string;
+  price?: string;
   isOnline: boolean;
   registrationUrl?: string;
   maxAttendees?: number;
+  capacity?: number;
+  registrations?: number;
+  metaTitle?: string;
+  metaDescription?: string;
   status: 'DRAFT' | 'PUBLISHED' | 'CANCELLED';
   author?: User;
   authorId: string;
@@ -84,6 +93,7 @@ export interface Page {
   isHomePage: boolean;
   metaTitle?: string;
   metaDescription?: string;
+  template?: string;
   sections: PageSection[];
   author?: User;
   authorId: string;
@@ -97,6 +107,7 @@ export interface Media {
   filename: string;
   originalName: string;
   mimeType: string;
+  type?: string;
   size: number;
   url: string;
   thumbnailUrl?: string;
@@ -136,6 +147,8 @@ export interface ArticleFormData {
   status: 'DRAFT' | 'PUBLISHED';
   categoryId?: string;
   tags?: string[];
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface EventFormData {
@@ -147,10 +160,15 @@ export interface EventFormData {
   startDate: string;
   endDate?: string;
   location?: string;
+  address?: string;
+  price?: string;
   isOnline: boolean;
   registrationUrl?: string;
   maxAttendees?: number;
+  capacity?: number;
   status: 'DRAFT' | 'PUBLISHED';
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface PageFormData {

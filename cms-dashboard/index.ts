@@ -14,6 +14,7 @@ export {
 
 // Types
 export * from './types';
+export * from './types/templates';
 
 // Store
 export { createAuthStore, useAuthStore } from './store/authStore';
@@ -48,6 +49,8 @@ export { DashboardLayout } from './layouts/DashboardLayout';
 
 // Pages
 export { LoginPage } from './pages/LoginPage';
+export { default as Dashboard } from './pages/Dashboard';
+export { DashboardPage } from './pages/DashboardPage';
 export { DashboardPage } from './pages/DashboardPage';
 export { MediaLibrary } from './pages/MediaLibrary';
 export { ArticlesList, ArticleForm } from './pages/articles';

@@ -8,14 +8,11 @@ import { Table } from '../../components/Table';
 import { Badge } from '../../components/Badge';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { PageContent, SEOData } from '../../types/website-types';
-import { useApi } from '../../hooks/useApi';
 
 export const PageManagement: React.FC = () => {
   const [pages, setPages] = useState<PageContent[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<PageContent | null>(null);
-
-  const { get, post, put, delete: deleteApi } = useApi();
 
   useEffect(() => {
     loadPages();
@@ -23,8 +20,11 @@ export const PageManagement: React.FC = () => {
 
   const loadPages = async () => {
     try {
-      const data = await get('/api/admin/pages');
-      setPages(data);
+      const response = await fetch('/api/admin/pages');
+      if (response.ok) {
+        const data = await response.json();
+        setPages(data);
+      }
     } catch (error) {
       console.error('Erreur chargement pages:', error);
     }
@@ -51,13 +51,21 @@ export const PageManagement: React.FC = () => {
 
   const savePage = async (pageData: PageContent) => {
     try {
-      if (pageData.id) {
-        await put(`/api/admin/pages/${pageData.id}`, pageData);
-      } else {
-        await post('/api/admin/pages', pageData);
+      const method = pageData.id ? 'PUT' : 'POST';
+      const url = pageData.id 
+        ? `/api/admin/pages/${pageData.id}` 
+        : '/api/admin/pages';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pageData),
+      });
+      
+      if (response.ok) {
+        loadPages();
+        setIsModalOpen(false);
       }
-      loadPages();
-      setIsModalOpen(false);
     } catch (error) {
       console.error('Erreur sauvegarde page:', error);
     }
@@ -67,8 +75,13 @@ export const PageManagement: React.FC = () => {
     if (!confirm('Supprimer cette page ?')) return;
     
     try {
-      await deleteApi(`/api/admin/pages/${pageId}`);
-      loadPages();
+      const response = await fetch(`/api/admin/pages/${pageId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        loadPages();
+      }
     } catch (error) {
       console.error('Erreur suppression page:', error);
     }
@@ -77,8 +90,15 @@ export const PageManagement: React.FC = () => {
   const toggleStatus = async (pageId: string, currentStatus: string) => {
     const newStatus = currentStatus === 'published' ? 'draft' : 'published';
     try {
-      await put(`/api/admin/pages/${pageId}/status`, { status: newStatus });
-      loadPages();
+      const response = await fetch(`/api/admin/pages/${pageId}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      
+      if (response.ok) {
+        loadPages();
+      }
     } catch (error) {
       console.error('Erreur changement statut:', error);
     }

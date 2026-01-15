@@ -18,6 +18,18 @@ import MenuManagement from "../../cms-dashboard/pages/menu/MenuManagement";
 import BlogManagement from "../../cms-dashboard/pages/blog/BlogManagement";
 import PageManagement from "../../cms-dashboard/pages/website/PageManagement";
 import SolutionManagement from "../../cms-dashboard/pages/solutions/SolutionManagement";
+import { ArticlesList } from "../../cms-dashboard/pages/articles";
+import { ArticleForm } from "../../cms-dashboard/pages/articles";
+import { EventsList } from "../../cms-dashboard/pages/events";
+import { EventForm } from "../../cms-dashboard/pages/events";
+import { PagesList } from "../../cms-dashboard/pages/pages";
+import { PageForm } from "../../cms-dashboard/pages/pages";
+import { MediaLibrary } from "../../cms-dashboard/pages/MediaLibrary";
+import { CategoriesList } from "../../cms-dashboard/pages/categories";
+import { UsersList } from "../../cms-dashboard/pages/users";
+import { GeneralSettings, SEOSettings, IntegrationSettings } from "../../cms-dashboard/pages/settings";
+import { VisualEditorManagement } from "../../cms-dashboard/pages/plasmic";
+import GrapesJSEditor from "../../cms-dashboard/pages/plasmic/GrapesJSEditor";
 
 function Router() {
   return (
@@ -30,6 +42,8 @@ function Router() {
       
       {/* CMS Admin Routes */}
       <Route path="/admin/login" component={LoginPage} />
+      
+      {/* Dashboard */}
       <Route path="/admin">
         {() => (
           <DashboardLayout>
@@ -37,6 +51,143 @@ function Router() {
           </DashboardLayout>
         )}
       </Route>
+      
+      {/* Articles */}
+      <Route path="/admin/articles">
+        {() => (
+          <DashboardLayout>
+            <ArticlesList />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/admin/articles/new">
+        {() => (
+          <DashboardLayout>
+            <ArticleForm />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/admin/articles/:id/edit">
+        {(params) => (
+          <DashboardLayout>
+            <ArticleForm />
+          </DashboardLayout>
+        )}
+      </Route>
+      
+      {/* Events */}
+      <Route path="/admin/events">
+        {() => (
+          <DashboardLayout>
+            <EventsList />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/admin/events/new">
+        {() => (
+          <DashboardLayout>
+            <EventForm />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/admin/events/:id/edit">
+        {(params) => (
+          <DashboardLayout>
+            <EventForm />
+          </DashboardLayout>
+        )}
+      </Route>
+      
+      {/* Pages */}
+      <Route path="/admin/pages">
+        {() => (
+          <DashboardLayout>
+            <PagesList />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/admin/pages/new">
+        {() => (
+          <DashboardLayout>
+            <PageForm />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/admin/pages/:id/edit">
+        {(params) => (
+          <DashboardLayout>
+            <PageForm />
+          </DashboardLayout>
+        )}
+      </Route>
+      
+      {/* Visual Editor */}
+      <Route path="/admin/visual-editor">
+        {() => (
+          <DashboardLayout>
+            <VisualEditorManagement />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/admin/visual-editor/edit/:pageId">
+        {(params) => (
+          <DashboardLayout>
+            <GrapesJSEditor />
+          </DashboardLayout>
+        )}
+      </Route>
+      
+      {/* Media */}
+      <Route path="/admin/media">
+        {() => (
+          <DashboardLayout>
+            <MediaLibrary />
+          </DashboardLayout>
+        )}
+      </Route>
+      
+      {/* Categories */}
+      <Route path="/admin/categories">
+        {() => (
+          <DashboardLayout>
+            <CategoriesList />
+          </DashboardLayout>
+        )}
+      </Route>
+      
+      {/* Users */}
+      <Route path="/admin/users">
+        {() => (
+          <DashboardLayout>
+            <UsersList />
+          </DashboardLayout>
+        )}
+      </Route>
+      
+      {/* Settings */}
+      <Route path="/admin/settings/general">
+        {() => (
+          <DashboardLayout>
+            <GeneralSettings />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/admin/settings/seo">
+        {() => (
+          <DashboardLayout>
+            <SEOSettings />
+          </DashboardLayout>
+        )}
+      </Route>
+      <Route path="/admin/settings/integrations">
+        {() => (
+          <DashboardLayout>
+            <IntegrationSettings />
+          </DashboardLayout>
+        )}
+      </Route>
+      
+      {/* Legacy routes */}
       <Route path="/admin/menus">
         {() => (
           <DashboardLayout>
@@ -48,13 +199,6 @@ function Router() {
         {() => (
           <DashboardLayout>
             <BlogManagement />
-          </DashboardLayout>
-        )}
-      </Route>
-      <Route path="/admin/pages">
-        {() => (
-          <DashboardLayout>
-            <PageManagement />
           </DashboardLayout>
         )}
       </Route>
