@@ -21,7 +21,7 @@
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS users (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
   name TEXT NOT NULL,
@@ -40,13 +40,13 @@ CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS categories (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   description TEXT,
   color VARCHAR(7),
   icon TEXT,
-  parent_id VARCHAR,
+  parent_id UUID,
   "order" INTEGER DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -60,7 +60,7 @@ CREATE INDEX IF NOT EXISTS idx_categories_parent ON categories(parent_id);
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS articles (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   excerpt TEXT,
@@ -76,8 +76,8 @@ CREATE TABLE IF NOT EXISTS articles (
   published_at TIMESTAMP,
 
   -- Relationships
-  author_id VARCHAR REFERENCES users(id),
-  category_id VARCHAR REFERENCES categories(id),
+  author_id UUID REFERENCES users(id),
+  category_id UUID REFERENCES categories(id),
 
   -- SEO
   meta_title TEXT,
@@ -104,7 +104,7 @@ CREATE INDEX IF NOT EXISTS idx_articles_published ON articles(published_at);
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS events (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   description TEXT,
@@ -133,8 +133,8 @@ CREATE TABLE IF NOT EXISTS events (
   status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
 
   -- Relationships
-  organizer_id VARCHAR REFERENCES users(id),
-  category_id VARCHAR REFERENCES categories(id),
+  organizer_id UUID REFERENCES users(id),
+  category_id UUID REFERENCES categories(id),
 
   -- SEO
   meta_title TEXT,
@@ -158,7 +158,7 @@ CREATE INDEX IF NOT EXISTS idx_events_organizer ON events(organizer_id);
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS pages (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   content TEXT,
@@ -174,8 +174,8 @@ CREATE TABLE IF NOT EXISTS pages (
   published_at TIMESTAMP,
 
   -- Relationships
-  author_id VARCHAR REFERENCES users(id),
-  parent_id VARCHAR,
+  author_id UUID REFERENCES users(id),
+  parent_id UUID,
 
   -- SEO
   meta_title TEXT,
@@ -198,7 +198,7 @@ CREATE INDEX IF NOT EXISTS idx_pages_parent ON pages(parent_id);
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS media (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   filename TEXT NOT NULL,
   original_name TEXT NOT NULL,
   mime_type TEXT NOT NULL,
@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS media (
   height INTEGER,
 
   -- Relationships
-  uploaded_by VARCHAR REFERENCES users(id),
+  uploaded_by UUID REFERENCES users(id),
 
   -- Organization
   folder TEXT DEFAULT '/',
@@ -235,7 +235,7 @@ CREATE INDEX IF NOT EXISTS idx_media_folder ON media(folder);
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS navigation_menus (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
   location VARCHAR(50),
@@ -253,7 +253,7 @@ CREATE INDEX IF NOT EXISTS idx_nav_menus_location ON navigation_menus(location);
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS settings (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   key TEXT NOT NULL UNIQUE,
   value JSONB,
   "group" VARCHAR(50),
@@ -270,7 +270,7 @@ CREATE INDEX IF NOT EXISTS idx_settings_group ON settings("group");
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS contact_messages (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
   function TEXT NOT NULL,
@@ -291,8 +291,8 @@ CREATE INDEX IF NOT EXISTS idx_contact_created ON contact_messages(created_at);
 -- ========================================
 
 CREATE TABLE IF NOT EXISTS audit_logs (
-  id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id VARCHAR REFERENCES users(id),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
   action VARCHAR(50) NOT NULL,
   entity_type VARCHAR(50) NOT NULL,
   entity_id VARCHAR NOT NULL,

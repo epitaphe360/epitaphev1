@@ -82,7 +82,7 @@ export function Table<T extends Record<string, any>>({
     );
   }
 
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-gray-500">
         <p className="text-lg">{emptyMessage}</p>

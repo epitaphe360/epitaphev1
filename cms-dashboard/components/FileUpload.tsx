@@ -190,7 +190,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
 }) => {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
-      {items.map((item) => {
+      {Array.isArray(items) && items.map((item) => {
         const isSelected = selectedIds.includes(item.id);
         const isImage = item.type.startsWith('image/');
 
