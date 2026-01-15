@@ -13,6 +13,7 @@ import { FileUpload } from '../../components/FileUpload';
 import { useToast } from '../../components/Toast';
 import { getApi } from '../../lib/api';
 import { Event, EventFormData } from '../../types';
+import { EVENT_TEMPLATES, EventTemplate } from '../../types/templates';
 
 export const EventForm: React.FC = () => {
   const { id } = useParams();
@@ -22,7 +23,9 @@ export const EventForm: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  
+  const [selectedTemplate, setSelectedTemplate] = useState<EventTemplate>('CONFERENCE');
+  const [templateData, setTemplateData] = useState<any>({});
+
   const [formData, setFormData] = useState<EventFormData>({
     title: '',
     slug: '',
@@ -103,6 +106,8 @@ export const EventForm: React.FC = () => {
         ...formData,
         startDate: formData.startDate ? new Date(formData.startDate).toISOString() : null,
         endDate: formData.endDate ? new Date(formData.endDate).toISOString() : null,
+        template: selectedTemplate,
+        templateData,
       };
 
       if (isEditing) {
@@ -125,12 +130,302 @@ export const EventForm: React.FC = () => {
       const api = getApi();
       const formDataUpload = new FormData();
       formDataUpload.append('file', files[0]);
-      
+
       const response = await api.media.upload(formDataUpload);
       setFormData((prev) => ({ ...prev, featuredImage: response.url }));
       toast.success('Succès', 'Image uploadée');
     } catch (error) {
       toast.error('Erreur', 'Impossible d\'uploader l\'image');
+    }
+  };
+
+  const renderTemplateFields = () => {
+    switch (selectedTemplate) {
+      case 'CONFERENCE':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Conférence</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Textarea
+                label="Speakers (un par ligne)"
+                placeholder="John Doe - CEO TechCorp&#10;Jane Smith - CTO StartupX"
+                value={templateData.speakers || ''}
+                onChange={(e) => setTemplateData({ ...templateData, speakers: e.target.value })}
+                rows={4}
+              />
+              <Input
+                label="Programme (lien PDF)"
+                placeholder="https://example.com/programme.pdf"
+                value={templateData.programUrl || ''}
+                onChange={(e) => setTemplateData({ ...templateData, programUrl: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'WORKSHOP':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Atelier</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Formateur"
+                placeholder="Nom du formateur"
+                value={templateData.instructor || ''}
+                onChange={(e) => setTemplateData({ ...templateData, instructor: e.target.value })}
+              />
+              <Select
+                label="Niveau requis"
+                value={templateData.level || 'beginner'}
+                onChange={(e) => setTemplateData({ ...templateData, level: e.target.value })}
+                options={[
+                  { value: 'beginner', label: 'Débutant' },
+                  { value: 'intermediate', label: 'Intermédiaire' },
+                  { value: 'advanced', label: 'Avancé' },
+                ]}
+              />
+              <Textarea
+                label="Matériel requis"
+                placeholder="Liste du matériel nécessaire..."
+                value={templateData.requirements || ''}
+                onChange={(e) => setTemplateData({ ...templateData, requirements: e.target.value })}
+                rows={3}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'WEBINAR':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Webinaire</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Lien de connexion"
+                placeholder="https://zoom.us/j/..."
+                value={templateData.meetingUrl || ''}
+                onChange={(e) => setTemplateData({ ...templateData, meetingUrl: e.target.value })}
+              />
+              <Input
+                label="Plateforme"
+                placeholder="Zoom, Google Meet, Teams..."
+                value={templateData.platform || ''}
+                onChange={(e) => setTemplateData({ ...templateData, platform: e.target.value })}
+              />
+              <Input
+                label="Lien d'enregistrement (après l'événement)"
+                placeholder="https://youtube.com/..."
+                value={templateData.recordingUrl || ''}
+                onChange={(e) => setTemplateData({ ...templateData, recordingUrl: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'NETWORKING':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Networking</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Secteurs ciblés"
+                placeholder="Tech, Finance, Marketing..."
+                value={templateData.targetIndustries || ''}
+                onChange={(e) => setTemplateData({ ...templateData, targetIndustries: e.target.value })}
+              />
+              <Input
+                label="Code vestimentaire"
+                placeholder="Business casual, Formel..."
+                value={templateData.dressCode || ''}
+                onChange={(e) => setTemplateData({ ...templateData, dressCode: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'CONCERT':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Concert</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Artiste principal"
+                placeholder="Nom de l'artiste"
+                value={templateData.headliner || ''}
+                onChange={(e) => setTemplateData({ ...templateData, headliner: e.target.value })}
+              />
+              <Textarea
+                label="Première partie (optionnel)"
+                placeholder="Noms des artistes en première partie..."
+                value={templateData.supportActs || ''}
+                onChange={(e) => setTemplateData({ ...templateData, supportActs: e.target.value })}
+                rows={2}
+              />
+              <Input
+                label="Genre musical"
+                placeholder="Rock, Jazz, Pop..."
+                value={templateData.genre || ''}
+                onChange={(e) => setTemplateData({ ...templateData, genre: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'EXHIBITION':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Exposition</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Artiste(s) / Exposant(s)"
+                placeholder="Noms des artistes"
+                value={templateData.artists || ''}
+                onChange={(e) => setTemplateData({ ...templateData, artists: e.target.value })}
+              />
+              <Input
+                label="Thème de l'exposition"
+                placeholder="Art moderne, Photographie..."
+                value={templateData.theme || ''}
+                onChange={(e) => setTemplateData({ ...templateData, theme: e.target.value })}
+              />
+              <Input
+                label="Vernissage (date et heure)"
+                type="datetime-local"
+                value={templateData.vernissageDate || ''}
+                onChange={(e) => setTemplateData({ ...templateData, vernissageDate: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'FESTIVAL':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Festival</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Textarea
+                label="Lineup / Programme"
+                placeholder="Liste des activités et artistes..."
+                value={templateData.lineup || ''}
+                onChange={(e) => setTemplateData({ ...templateData, lineup: e.target.value })}
+                rows={5}
+              />
+              <Input
+                label="Nombre de scènes/espaces"
+                type="number"
+                value={templateData.stages || ''}
+                onChange={(e) => setTemplateData({ ...templateData, stages: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'CEREMONY':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Cérémonie</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Type de cérémonie"
+                placeholder="Remise de prix, Inauguration..."
+                value={templateData.ceremonyType || ''}
+                onChange={(e) => setTemplateData({ ...templateData, ceremonyType: e.target.value })}
+              />
+              <Input
+                label="Maître de cérémonie"
+                placeholder="Nom du MC"
+                value={templateData.host || ''}
+                onChange={(e) => setTemplateData({ ...templateData, host: e.target.value })}
+              />
+              <Textarea
+                label="Ordre du jour"
+                placeholder="Déroulement de la cérémonie..."
+                value={templateData.agenda || ''}
+                onChange={(e) => setTemplateData({ ...templateData, agenda: e.target.value })}
+                rows={4}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'COMPETITION':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Compétition</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Type de compétition"
+                placeholder="Hackathon, Sport, Quiz..."
+                value={templateData.competitionType || ''}
+                onChange={(e) => setTemplateData({ ...templateData, competitionType: e.target.value })}
+              />
+              <Textarea
+                label="Règlement (ou lien)"
+                placeholder="Règles de la compétition..."
+                value={templateData.rules || ''}
+                onChange={(e) => setTemplateData({ ...templateData, rules: e.target.value })}
+                rows={4}
+              />
+              <Input
+                label="Prix / Récompenses"
+                placeholder="1er prix: 10,000 MAD, 2ème..."
+                value={templateData.prizes || ''}
+                onChange={(e) => setTemplateData({ ...templateData, prizes: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      case 'MEETUP':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Meetup</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Input
+                label="Communauté"
+                placeholder="React Developers Morocco..."
+                value={templateData.community || ''}
+                onChange={(e) => setTemplateData({ ...templateData, community: e.target.value })}
+              />
+              <Textarea
+                label="Talks / Présentations"
+                placeholder="Liste des talks avec speakers..."
+                value={templateData.talks || ''}
+                onChange={(e) => setTemplateData({ ...templateData, talks: e.target.value })}
+                rows={4}
+              />
+              <Input
+                label="Sponsor(s) (optionnel)"
+                placeholder="Nom des sponsors"
+                value={templateData.sponsors || ''}
+                onChange={(e) => setTemplateData({ ...templateData, sponsors: e.target.value })}
+              />
+            </CardContent>
+          </Card>
+        );
+
+      default:
+        return null;
     }
   };
 
@@ -204,6 +499,16 @@ export const EventForm: React.FC = () => {
                 rows={3}
               />
 
+              <Select
+                label="Type d'événement"
+                value={selectedTemplate}
+                onChange={(e) => setSelectedTemplate(e.target.value as EventTemplate)}
+                options={EVENT_TEMPLATES.map((t) => ({
+                  value: t.value,
+                  label: `${t.label} - ${t.description}`,
+                }))}
+              />
+
               <RichTextEditor
                 label="Description complète"
                 value={formData.content}
@@ -211,6 +516,9 @@ export const EventForm: React.FC = () => {
               />
             </CardContent>
           </Card>
+
+          {/* Template-specific fields */}
+          {renderTemplateFields()}
 
           {/* Lieu */}
           <Card>
