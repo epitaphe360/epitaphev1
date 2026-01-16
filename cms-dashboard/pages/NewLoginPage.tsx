@@ -47,10 +47,10 @@ export const NewLoginPage: React.FC = () => {
 
       if (email === 'admin@epitaph.ma' && password === 'admin123') {
         const mockUser = {
-          id: 1,
+          id: '1',
           name: 'Administrateur',
           email: 'admin@epitaph.ma',
-          role: 'admin'
+          role: 'ADMIN' as const
         };
         const mockToken = 'mock-jwt-token-' + Date.now();
 

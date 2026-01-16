@@ -173,7 +173,7 @@ interface MediaGridProps {
     id: string;
     url: string;
     filename: string;
-    type: string;
+    type?: string;
   }>;
   onSelect?: (item: any) => void;
   onRemove?: (id: string) => void;
@@ -192,7 +192,7 @@ export const MediaGrid: React.FC<MediaGridProps> = ({
     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
       {items.map((item) => {
         const isSelected = selectedIds.includes(item.id);
-        const isImage = item.type.startsWith('image/');
+        const isImage = item.type?.startsWith('image/') || false;
 
         return (
           <div

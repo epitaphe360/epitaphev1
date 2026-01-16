@@ -52,9 +52,7 @@ export const MediaLibrary: React.FC = () => {
     try {
       const api = getApi();
       for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        await api.media.upload(formData);
+        await api.media.upload(file);
       }
       toast.success('Succès', `${files.length} fichier(s) uploadé(s)`);
       loadMedia();
@@ -228,7 +226,7 @@ export const MediaLibrary: React.FC = () => {
         {selected && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              {selected.type.startsWith('image/') ? (
+              {selected.type?.startsWith('image/') ? (
                 <img
                   src={selected.url}
                   alt={selected.filename}

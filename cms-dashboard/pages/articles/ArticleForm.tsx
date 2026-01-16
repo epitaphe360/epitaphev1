@@ -130,10 +130,7 @@ export const ArticleForm: React.FC = () => {
   const handleImageUpload = async (files: File[]) => {
     try {
       const api = getApi();
-      const formDataUpload = new FormData();
-      formDataUpload.append('file', files[0]);
-      
-      const response = await api.media.upload(formDataUpload);
+      const response = await api.media.upload(files[0]);
       setFormData((prev) => ({ ...prev, featuredImage: response.url }));
       toast.success('Succès', 'Image uploadée');
     } catch (error) {
