@@ -50,12 +50,14 @@ export const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputPro
               className={inputClasses}
               rows={rows || 4}
               {...(props as any)}
+              value={props.value ?? ''}
             />
           ) : (
             <input
               ref={ref as React.Ref<HTMLInputElement>}
               className={inputClasses}
               {...props}
+              value={props.value ?? ''}
             />
           )}
           {icon && iconPosition === 'right' && (

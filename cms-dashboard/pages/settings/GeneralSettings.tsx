@@ -45,9 +45,21 @@ export const GeneralSettings: React.FC = () => {
     try {
       const api = getApi();
       const response = await api.get('/settings/general');
-      setFormData(response.data);
+      // S'assurer que tous les champs ont des valeurs définis (jamais undefined)
+      const data = response.data || {};
+      setFormData({
+        siteName: data.siteName ?? '',
+        siteDescription: data.siteDescription ?? '',
+        siteUrl: data.siteUrl ?? '',
+        contactEmail: data.contactEmail ?? '',
+        contactPhone: data.contactPhone ?? '',
+        logo: data.logo ?? '',
+        favicon: data.favicon ?? '',
+        copyrightText: data.copyrightText ?? '',
+      });
     } catch (error) {
       console.error('Error loading settings:', error);
+      // Garder les valeurs par défaut
     }
   };
 
