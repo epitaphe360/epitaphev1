@@ -38,6 +38,9 @@ export const EventForm: React.FC = () => {
     address: '',
     capacity: undefined,
     price: undefined,
+    isOnline: false,
+    registrationUrl: '',
+    maxAttendees: undefined,
     status: 'DRAFT',
     metaTitle: '',
     metaDescription: '',
@@ -66,6 +69,9 @@ export const EventForm: React.FC = () => {
         address: event.address || '',
         capacity: event.capacity,
         price: event.price,
+        isOnline: event.isOnline || false,
+        registrationUrl: event.registrationUrl || '',
+        maxAttendees: event.maxAttendees,
         status: event.status,
         metaTitle: event.metaTitle || '',
         metaDescription: event.metaDescription || '',
@@ -128,10 +134,7 @@ export const EventForm: React.FC = () => {
   const handleImageUpload = async (files: File[]) => {
     try {
       const api = getApi();
-      const formDataUpload = new FormData();
-      formDataUpload.append('file', files[0]);
-
-      const response = await api.media.upload(formDataUpload);
+      const response = await api.media.upload(files[0]);
       setFormData((prev) => ({ ...prev, featuredImage: response.url }));
       toast.success('Succès', 'Image uploadée');
     } catch (error) {
@@ -638,9 +641,9 @@ export const EventForm: React.FC = () => {
                 label="Prix (MAD)"
                 type="number"
                 value={formData.price || ''}
-                onChange={(e) => setFormData((prev) => ({ 
-                  ...prev, 
-                  price: e.target.value ? parseFloat(e.target.value) : undefined 
+                onChange={(e) => setFormData((prev) => ({
+                  ...prev,
+                  price: e.target.value || undefined
                 }))}
                 placeholder="Gratuit"
               />

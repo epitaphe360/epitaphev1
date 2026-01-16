@@ -10,7 +10,7 @@ import { Button } from '../../components/Button';
 import { Input, Textarea, Select } from '../../components/Input';
 import { RichTextEditor } from '../../components/RichTextEditor';
 import { useToast } from '../../components/Toast';
-import { getApi } from '../../lib/simple-api';
+import { getApi } from '../../lib/api';
 import { Page, PageSection } from '../../types';
 import { PAGE_TEMPLATES, getTemplateById } from '../../types/page-templates';
 

@@ -56,7 +56,7 @@ const getData = (promise: Promise<AxiosResponse>) => promise.then(response => re
 export const apiHelpers = {
   // Articles
   articles: (client: AxiosInstance) => ({
-    getAll: (params?: { page?: number; limit?: number; status?: string }) =>
+    getAll: (params?: { page?: number; limit?: number; status?: string; search?: string }) =>
       getData(client.get('/articles', { params })),
     getById: (id: string) => getData(client.get(`/articles/${id}`)),
     getBySlug: (slug: string) => getData(client.get(`/articles/slug/${slug}`)),
@@ -67,7 +67,7 @@ export const apiHelpers = {
 
   // Events
   events: (client: AxiosInstance) => ({
-    getAll: (params?: { page?: number; limit?: number; status?: string }) =>
+    getAll: (params?: { page?: number; limit?: number; status?: string; search?: string }) =>
       getData(client.get('/events', { params })),
     getById: (id: string) => getData(client.get(`/events/${id}`)),
     getBySlug: (slug: string) => getData(client.get(`/events/slug/${slug}`)),
@@ -78,7 +78,7 @@ export const apiHelpers = {
 
   // Pages
   pages: (client: AxiosInstance) => ({
-    getAll: (params?: { status?: string }) =>
+    getAll: (params?: { page?: number; limit?: number; status?: string; search?: string }) =>
       getData(client.get('/pages', { params })),
     getById: (id: string) => getData(client.get(`/pages/${id}`)),
     getBySlug: (slug: string) => getData(client.get(`/pages/slug/${slug}`)),
@@ -89,7 +89,7 @@ export const apiHelpers = {
 
   // Media
   media: (client: AxiosInstance) => ({
-    getAll: (params?: { page?: number; limit?: number; type?: string }) =>
+    getAll: (params?: { page?: number; limit?: number; type?: string; search?: string }) =>
       getData(client.get('/media', { params })),
     getById: (id: string) => getData(client.get(`/media/${id}`)),
     upload: (file: File, onProgress?: (progress: number) => void) => {

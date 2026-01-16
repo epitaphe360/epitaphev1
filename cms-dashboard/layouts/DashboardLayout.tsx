@@ -2,7 +2,7 @@
 // CMS Dashboard - Layout Principal
 // ========================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { ToastProvider } from '../components/Toast';
 import { useAuthStore } from '../store/authStore';
@@ -31,6 +31,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ config, childr
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuthStore();
   const [location, setLocation] = useLocation();
+
+  // ✅ Add data-admin-page attribute for CSS rules
+  useEffect(() => {
+    document.body.setAttribute('data-admin-page', 'true');
+    return () => document.body.removeAttribute('data-admin-page');
+  }, []);
 
   const handleLogout = () => {
     logout();

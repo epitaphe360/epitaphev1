@@ -7,8 +7,8 @@ import { RouteObject, Navigate } from 'react-router-dom';
 
 // Import pages
 import { DashboardLayout } from './layouts/DashboardLayout';
-import { NewLoginPage as LoginPage } from './pages/NewLoginPage';
-import Dashboard from './pages/Dashboard';
+import { NewLoginPage } from './pages/NewLoginPage'; // ✅ Fixed: LoginPage → NewLoginPage
+// import Dashboard from './pages/Dashboard'; // ❌ Legacy - removed
 import { DashboardPage } from './pages/DashboardPage';
 import { MediaLibrary } from './pages/MediaLibrary';
 import { ArticlesList, ArticleForm } from './pages/articles';
@@ -46,7 +46,7 @@ export const getDashboardRoutes = (
   return [
     {
       path: `${basePath}/login`,
-      element: <LoginPage />,
+      element: <NewLoginPage />,
     },
     {
       path: basePath,

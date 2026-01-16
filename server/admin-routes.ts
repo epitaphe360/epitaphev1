@@ -82,8 +82,6 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { status, search, categoryId, limit = '50', offset = '0' } = req.query;
 
-      let query = db.select().from(articles);
-
       const conditions = [];
       if (status && status !== 'all') {
         conditions.push(eq(articles.status, status as string));
@@ -100,8 +98,9 @@ export function registerAdminRoutes(app: Express) {
         conditions.push(eq(articles.categoryId, categoryId as string));
       }
 
+      let query = db.select().from(articles);
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        query = query.where(and(...conditions)) as typeof query;
       }
 
       const result = await query
@@ -230,8 +229,6 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { status, upcoming, limit = '50', offset = '0' } = req.query;
 
-      let query = db.select().from(events);
-
       const conditions = [];
       if (status && status !== 'all') {
         conditions.push(eq(events.status, status as string));
@@ -240,8 +237,9 @@ export function registerAdminRoutes(app: Express) {
         conditions.push(sql`${events.startDate} >= NOW()`);
       }
 
+      let query = db.select().from(events);
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        query = query.where(and(...conditions)) as typeof query;
       }
 
       const result = await query
@@ -502,8 +500,6 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { folder, search, limit = '50', offset = '0' } = req.query;
 
-      let query = db.select().from(media);
-
       const conditions = [];
       if (folder) {
         conditions.push(eq(media.folder, folder as string));
@@ -517,8 +513,9 @@ export function registerAdminRoutes(app: Express) {
         );
       }
 
+      let query = db.select().from(media);
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        query = query.where(and(...conditions)) as typeof query;
       }
 
       const result = await query
@@ -619,8 +616,6 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { entityType, entityId, userId, limit = '100', offset = '0' } = req.query;
 
-      let query = db.select().from(auditLogs);
-
       const conditions = [];
       if (entityType) {
         conditions.push(eq(auditLogs.entityType, entityType as string));
@@ -632,8 +627,9 @@ export function registerAdminRoutes(app: Express) {
         conditions.push(eq(auditLogs.userId, userId as string));
       }
 
+      let query = db.select().from(auditLogs);
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        query = query.where(and(...conditions)) as typeof query;
       }
 
       const result = await query
