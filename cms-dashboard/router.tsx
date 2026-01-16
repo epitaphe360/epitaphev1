@@ -46,7 +46,7 @@ export const getDashboardRoutes = (
   return [
     {
       path: `${basePath}/login`,
-      element: <LoginPage />,
+      element: <NewLoginPage />,
     },
     {
       path: basePath,
