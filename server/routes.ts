@@ -5,6 +5,7 @@ import { insertContactMessageSchema } from "@shared/schema";
 import { registerAdminRoutes } from "./admin-routes";
 import { db } from "./db";
 import { pages, articles, events, categories, media } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -30,7 +31,6 @@ export async function registerRoutes(
     }
   });
 
-  // API publiques (alias pour /api/admin/*)
   // Pages
   app.get("/api/pages", async (req, res) => {
     try {
@@ -38,6 +38,19 @@ export async function registerRoutes(
       res.json({ data: result, total: result.length });
     } catch (error) {
       res.status(500).json({ error: 'Erreur lors de la récupération des pages' });
+    }
+  });
+
+  // Pages by slug
+  app.get("/api/pages/slug/:slug", async (req, res) => {
+    try {
+      const result = await db.select().from(pages).where(eq(pages.slug, req.params.slug)).limit(1);
+      if (result.length === 0) {
+        return res.status(404).json({ error: 'Page non trouvée' });
+      }
+      res.json(result[0]);
+    } catch (error) {
+      res.status(500).json({ error: 'Erreur lors de la récupération de la page' });
     }
   });
 

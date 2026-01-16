@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import Home from "@/pages/home";
+import DynamicPage from "@/pages/dynamic-page";
 import ReferencesPage from "@/pages/references";
 import BlogPage from "@/pages/blog";
 import BlogArticlePage from "@/pages/blog-article";
@@ -39,6 +40,7 @@ function Router() {
       <Route path="/blog" component={BlogPage} />
       <Route path="/blog/:slug" component={BlogArticlePage} />
       <Route path="/solutions/:slug" component={SolutionPage} />
+      <Route path="/page/:slug" component={DynamicPage} />
       
       {/* CMS Admin Routes */}
       <Route path="/admin/login" component={NewLoginPage} />
