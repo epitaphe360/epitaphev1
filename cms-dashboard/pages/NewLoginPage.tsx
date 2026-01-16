@@ -2,7 +2,7 @@
 // NOUVELLE PAGE DE CONNEXION - DESIGN PREMIUM 2026
 // ========================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Loader2, ArrowRight, Eye, EyeOff, Lock, Mail, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
@@ -18,6 +18,12 @@ export const NewLoginPage: React.FC = () => {
 
   const { login } = useAuthStore();
   const [, setLocation] = useLocation();
+
+  // ✅ Add data-admin-page attribute for CSS rules
+  useEffect(() => {
+    document.body.setAttribute('data-admin-page', 'true');
+    return () => document.body.removeAttribute('data-admin-page');
+  }, []);
 
   // Validation en temps réel
   const isEmailValid = email.includes('@') && email.includes('.');

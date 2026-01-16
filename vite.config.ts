@@ -35,6 +35,7 @@ export default defineConfig({
     port: 3000,
     fs: {
       strict: true,
+      allow: ['..'], // ✅ Allow access to parent directory (cms-dashboard)
       deny: ["**/.*"],
     },
   },
