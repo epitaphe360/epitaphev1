@@ -5,12 +5,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from '../../hooks/useRouterParams';
 import { Link } from 'wouter';
-import { Plus, Edit, Trash2, Eye, GripVertical } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, GripVertical, Paintbrush } from 'lucide-react';
 import { Card, CardContent } from '../../components/Card';
 import { Button } from '../../components/Button';
 import { SearchInput } from '../../components/Input';
 import { Table, Column, Pagination } from '../../components/Table';
-import { StatusBadge } from '../../components/Badge';
+import { StatusBadge, Badge } from '../../components/Badge';
 import { ConfirmDialog } from '../../components/Modal';
 import { useToast } from '../../components/Toast';
 import { getApi } from '../../lib/api';
@@ -84,10 +84,21 @@ export const PagesList: React.FC = () => {
     },
     {
       key: 'template',
-      header: 'Template',
-      render: (pageItem) => (
-        <span className="text-sm text-gray-600">{pageItem.template || 'default'}</span>
-      ),
+      header: 'Type',
+      render: (pageItem) => {
+        const template = pageItem.template || 'DEFAULT';
+        const getTemplateColor = () => {
+          if (template === 'GRAPES_JS') return 'purple';
+          if (['HOME', 'REFERENCES', 'BLOG_LIST', 'SOLUTIONS', 'CONTACT'].includes(template)) return 'blue';
+          return 'gray';
+        };
+
+        return (
+          <Badge variant={getTemplateColor() as any}>
+            {template === 'GRAPES_JS' ? 'Visual Editor' : template.replace(/_/g, ' ')}
+          </Badge>
+        );
+      },
     },
     {
       key: 'status',
@@ -114,6 +125,16 @@ export const PagesList: React.FC = () => {
             title="Voir"
           >
             <Eye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/admin/visual-editor/edit/${pageItem.id}`);
+            }}
+            className="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg"
+            title="Éditeur visuel GrapesJS"
+          >
+            <Paintbrush className="w-4 h-4" />
           </button>
           <button
             onClick={(e) => {
