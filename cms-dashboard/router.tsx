@@ -7,8 +7,8 @@ import { RouteObject, Navigate } from 'react-router-dom';
 
 // Import pages
 import { DashboardLayout } from './layouts/DashboardLayout';
-import { LoginPage } from './pages/LoginPage';
-import Dashboard from './pages/Dashboard';
+import { NewLoginPage } from './pages/NewLoginPage'; // ✅ Fixed: LoginPage → NewLoginPage
+// import Dashboard from './pages/Dashboard'; // ❌ Legacy - removed
 import { DashboardPage } from './pages/DashboardPage';
 import { MediaLibrary } from './pages/MediaLibrary';
 import { ArticlesList, ArticleForm } from './pages/articles';
