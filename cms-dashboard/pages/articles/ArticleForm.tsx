@@ -51,9 +51,11 @@ export const ArticleForm: React.FC = () => {
     try {
       const api = getApi();
       const response = await api.get('/categories');
-      setCategories(response.data);
+      // S'assurer que c'est un array
+      setCategories(Array.isArray(response.data) ? response.data : response.data.data || []);
     } catch (error) {
       console.error('Erreur chargement catégories:', error);
+      setCategories([]);
     }
   };
 
@@ -530,7 +532,7 @@ export const ArticleForm: React.FC = () => {
                 onChange={(e) => setFormData((prev) => ({ ...prev, categoryId: e.target.value }))}
                 options={[
                   { value: '', label: 'Sélectionner...' },
-                  ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
+                  ...(Array.isArray(categories) ? categories.map((cat) => ({ value: cat.id, label: cat.name })) : []),
                 ]}
               />
             </CardContent>
