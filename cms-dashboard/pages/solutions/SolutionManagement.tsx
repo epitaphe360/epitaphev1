@@ -152,7 +152,7 @@ export const SolutionManagement: React.FC = () => {
       condition: (solution: Solution) => solution.isActive
     },
     {
-      label: solution => solution.isActive ? 'Désactiver' : 'Activer',
+      label: (solution: Solution) => solution.isActive ? 'Désactiver' : 'Activer',
       icon: <Grid size={16} />,
       onClick: (solution: Solution) => toggleStatus(solution.id, solution.isActive),
       variant: 'secondary' as const
@@ -216,7 +216,7 @@ export const SolutionManagement: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingSolution?.id ? 'Modifier la solution' : 'Nouvelle solution'}
-        maxWidth="4xl"
+        maxWidth="full"
       >
         {editingSolution && (
           <SolutionForm

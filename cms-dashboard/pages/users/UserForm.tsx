@@ -19,10 +19,7 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) =>
     name: '',
     email: '',
     password: '',
-    role: 'author',
-    status: 'active',
-    bio: '',
-    phone: '',
+    role: 'AUTHOR',
   });
 
   useEffect(() => {
@@ -31,10 +28,7 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) =>
         name: user.name || '',
         email: user.email || '',
         password: '', // Never pre-fill password
-        role: user.role || 'author',
-        status: user.status || 'active',
-        bio: user.bio || '',
-        phone: user.phone || '',
+        role: user.role || 'AUTHOR',
       });
     }
   }, [user]);
@@ -145,56 +139,13 @@ export const UserForm: React.FC<UserFormProps> = ({ user, onSave, onCancel }) =>
                 value={formData.role}
                 onChange={handleChange}
                 options={[
-                  { value: 'author', label: 'Auteur - Peut créer et modifier ses propres contenus' },
-                  { value: 'editor', label: 'Éditeur - Peut modifier tous les contenus' },
-                  { value: 'admin', label: 'Administrateur - Accès complet au système' },
+                  { value: 'AUTHOR', label: 'Auteur - Peut créer et modifier ses propres contenus' },
+                  { value: 'EDITOR', label: 'Éditeur - Peut modifier tous les contenus' },
+                  { value: 'ADMIN', label: 'Administrateur - Accès complet au système' },
                 ]}
               />
             </div>
 
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Statut
-              </label>
-              <Select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                options={[
-                  { value: 'active', label: 'Actif' },
-                  { value: 'inactive', label: 'Inactif' },
-                ]}
-              />
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Téléphone
-              </label>
-              <Input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                placeholder="+33 6 12 34 56 78"
-              />
-            </div>
-
-            {/* Bio */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Biographie
-              </label>
-              <Textarea
-                name="bio"
-                value={formData.bio}
-                onChange={handleChange}
-                placeholder="Quelques mots sur cet utilisateur..."
-                rows={3}
-              />
-            </div>
           </div>
 
           {/* Footer */}

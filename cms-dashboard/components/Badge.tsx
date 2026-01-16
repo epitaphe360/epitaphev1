@@ -11,6 +11,7 @@ interface BadgeProps {
   dot?: boolean;
   removable?: boolean;
   onRemove?: () => void;
+  className?: string;
 }
 
 const variantStyles = {
@@ -46,6 +47,7 @@ export const Badge: React.FC<BadgeProps> = ({
   dot = false,
   removable = false,
   onRemove,
+  className = '',
 }) => {
   return (
     <span
@@ -53,6 +55,7 @@ export const Badge: React.FC<BadgeProps> = ({
         inline-flex items-center gap-1.5 font-medium rounded-full
         ${variantStyles[variant]}
         ${sizeStyles[size]}
+        ${className}
       `}
     >
       {dot && (
