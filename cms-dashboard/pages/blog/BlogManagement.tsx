@@ -141,7 +141,7 @@ export const BlogManagement: React.FC = () => {
       condition: (post: BlogPost) => post.status === 'published'
     },
     {
-      label: post => post.status === 'published' ? 'Dépublier' : 'Publier',
+      label: (post: BlogPost) => post.status === 'published' ? 'Dépublier' : 'Publier',
       icon: <Calendar size={16} />,
       onClick: (post: BlogPost) => toggleStatus(post.id, post.status),
       variant: 'secondary' as const
@@ -208,7 +208,7 @@ export const BlogManagement: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingPost?.id ? 'Modifier l\'article' : 'Nouvel article'}
-        maxWidth="4xl"
+        maxWidth="full"
       >
         {editingPost && (
           <BlogPostForm

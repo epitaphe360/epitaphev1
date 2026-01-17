@@ -144,7 +144,7 @@ export const SEOSettings: React.FC = () => {
               </label>
               {formData.ogImage ? (
                 <ImagePreview
-                  url={formData.ogImage}
+                  src={formData.ogImage}
                   onRemove={() => setFormData(prev => ({ ...prev, ogImage: '' }))}
                 />
               ) : (

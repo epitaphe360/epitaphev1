@@ -16,7 +16,7 @@ export interface Column<T> {
 }
 
 interface Action<T> {
-  label: string;
+  label: string | ((item: T) => string);
   icon: React.ReactNode;
   onClick: (item: T) => void;
   variant?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'ghost';
@@ -150,20 +150,23 @@ export function Table<T extends Record<string, any>>({
                 <td className="px-4 py-4 text-sm text-gray-900 text-right">
                   {typeof actions === 'function' ? actions(item) : (
                     <div className="flex justify-end gap-2">
-                      {actions.filter(a => !a.condition || a.condition(item)).map((action, i) => (
-                        <Button
-                          key={i}
-                          variant={(action.variant as any) || 'ghost'}
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            action.onClick(item);
-                          }}
-                          title={action.label}
-                        >
-                          {action.icon}
-                        </Button>
-                      ))}
+                      {actions.filter(a => !a.condition || a.condition(item)).map((action, i) => {
+                        const label = typeof action.label === 'function' ? action.label(item) : action.label;
+                        return (
+                          <Button
+                            key={i}
+                            variant={(action.variant as any) || 'ghost'}
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              action.onClick(item);
+                            }}
+                            title={label}
+                          >
+                            {action.icon}
+                          </Button>
+                        );
+                      })}
                     </div>
                   )}
                 </td>

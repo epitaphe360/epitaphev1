@@ -194,7 +194,7 @@ export const GeneralSettings: React.FC = () => {
               </label>
               {formData.logo ? (
                 <ImagePreview
-                  url={formData.logo}
+                  src={formData.logo}
                   onRemove={() => setFormData(prev => ({ ...prev, logo: '' }))}
                 />
               ) : (
@@ -214,7 +214,7 @@ export const GeneralSettings: React.FC = () => {
               </label>
               {formData.favicon ? (
                 <ImagePreview
-                  url={formData.favicon}
+                  src={formData.favicon}
                   onRemove={() => setFormData(prev => ({ ...prev, favicon: '' }))}
                 />
               ) : (

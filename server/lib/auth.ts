@@ -48,7 +48,7 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
  */
 export function generateToken(payload: JWTPayload): string {
   const options: SignOptions = {
-    expiresIn: JWT_EXPIRES_IN as string,
+    expiresIn: JWT_EXPIRES_IN as any,
   };
   return jwt.sign(payload, JWT_SECRET, options);
 }

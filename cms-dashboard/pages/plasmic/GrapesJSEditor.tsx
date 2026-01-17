@@ -8,7 +8,7 @@ import { Button } from "../../components/Button";
 import { ArrowLeft, Save, Eye } from "lucide-react";
 
 export default function GrapesJSEditor() {
-  const { pageId } = useParams<{ pageId: string }>();
+  const { pageId } = useParams();
   const navigate = useNavigate();
   const editorRef = useRef<HTMLDivElement>(null);
   const [editor, setEditor] = useState<any>(null);
