@@ -7,7 +7,10 @@ import jwt, { type SignOptions } from 'jsonwebtoken';
 import type { Request, Response, NextFunction } from 'express';
 
 // JWT configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'epitaphe-secret-key-change-in-production-2026';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required. Please set it in your .env file.');
+}
 const JWT_EXPIRES_IN: string | number = process.env.JWT_EXPIRES_IN || '7d';
 
 export interface JWTPayload {

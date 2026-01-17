@@ -1,8 +1,21 @@
 import type { Express } from "express";
 import { db } from "./db";
-import { users, articles, events, pages, categories, media, navigationMenus, settings, auditLogs } from "@shared/schema";
+import {
+  users, articles, events, pages, categories, media, navigationMenus, settings, auditLogs,
+  insertArticleSchema, insertEventSchema, insertPageSchema
+} from "@shared/schema";
 import { eq, desc, and, or, like, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin, generateToken, hashPassword, verifyPassword, type AuthRequest } from "./lib/auth";
+import { z } from "zod";
+
+/**
+ * Sanitize a search string for use in SQL LIKE patterns
+ * Escapes special SQL LIKE characters: %, _, \
+ */
+function sanitizeLikePattern(input: string): string {
+  if (!input) return '';
+  return input.replace(/[%_\\]/g, '\\$&');
+}
 
 export function registerAdminRoutes(app: Express) {
 
@@ -87,10 +100,11 @@ export function registerAdminRoutes(app: Express) {
         conditions.push(eq(articles.status, status as string));
       }
       if (search) {
+        const sanitizedSearch = sanitizeLikePattern(search as string);
         conditions.push(
           or(
-            like(articles.title, `%${search}%`),
-            like(articles.content, `%${search}%`)
+            like(articles.title, `%${sanitizedSearch}%`),
+            like(articles.content, `%${sanitizedSearch}%`)
           )
         );
       }
@@ -134,10 +148,13 @@ export function registerAdminRoutes(app: Express) {
   // Create article
   app.post('/api/admin/articles', requireAuth, async (req: AuthRequest, res) => {
     try {
+      // Validate input data with Zod schema
+      const validatedData = insertArticleSchema.parse(req.body);
+
       const data = {
-        ...req.body,
+        ...validatedData,
         authorId: req.user?.userId,
-        publishedAt: req.body.status === 'PUBLISHED' ? new Date() : null,
+        publishedAt: validatedData.status === 'PUBLISHED' ? new Date() : null,
       };
 
       const [newArticle] = await db.insert(articles).values(data).returning();
@@ -154,6 +171,9 @@ export function registerAdminRoutes(app: Express) {
       res.status(201).json(newArticle);
     } catch (error) {
       console.error('Create article error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       res.status(500).json({ error: 'Erreur lors de la création de l\'article' });
     }
   });
@@ -505,10 +525,11 @@ export function registerAdminRoutes(app: Express) {
         conditions.push(eq(media.folder, folder as string));
       }
       if (search) {
+        const sanitizedSearch = sanitizeLikePattern(search as string);
         conditions.push(
           or(
-            like(media.originalName, `%${search}%`),
-            like(media.alt, `%${search}%`)
+            like(media.originalName, `%${sanitizedSearch}%`),
+            like(media.alt, `%${sanitizedSearch}%`)
           )
         );
       }

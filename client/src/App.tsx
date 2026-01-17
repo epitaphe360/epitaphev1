@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -31,6 +31,22 @@ import { UsersList } from "../../cms-dashboard/pages/users";
 import { GeneralSettings, SEOSettings, IntegrationSettings } from "../../cms-dashboard/pages/settings";
 import { VisualEditorManagement } from "../../cms-dashboard/pages/plasmic";
 import GrapesJSEditor from "../../cms-dashboard/pages/plasmic/GrapesJSEditor";
+import { useAuthStore } from "../../cms-dashboard/store/authStore";
+import type { ReactNode } from "react";
+
+// Protected Route Component
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const [, setLocation] = useLocation();
+
+  if (!isAuthenticated) {
+    // Redirect to login page
+    setLocation("/admin/login");
+    return null;
+  }
+
+  return <>{children}</>;
+}
 
 function Router() {
   return (
@@ -48,167 +64,209 @@ function Router() {
       {/* Dashboard */}
       <Route path="/admin">
         {() => (
-          <DashboardLayout>
-            <DashboardPage />
-          </DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
+              <DashboardPage />
+            </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       
       {/* Articles */}
       <Route path="/admin/articles">
         {() => (
-          <DashboardLayout>
-            <ArticlesList />
-          </DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
+              <ArticlesList />
+            </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/articles/new">
         {() => (
-          <DashboardLayout>
-            <ArticleForm />
-          </DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
+              <ArticleForm />
+            </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/articles/:id/edit">
         {(params) => (
-          <DashboardLayout>
-            <ArticleForm />
-          </DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
+              <ArticleForm />
+            </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       
       {/* Events */}
       <Route path="/admin/events">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <EventsList />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/events/new">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <EventForm />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/events/:id/edit">
         {(params) => (
-          <DashboardLayout>
-            <EventForm />
-          </DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
+              <EventForm />
+            </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       
       {/* Pages */}
       <Route path="/admin/pages">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <PagesList />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/pages/new">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <PageForm />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/pages/:id/edit">
         {(params) => (
-          <DashboardLayout>
-            <PageForm />
-          </DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
+              <PageForm />
+            </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       
       {/* Visual Editor */}
       <Route path="/admin/visual-editor">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <VisualEditorManagement />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/visual-editor/edit/:pageId">
         {(params) => (
-          <DashboardLayout>
-            <GrapesJSEditor />
-          </DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
+              <GrapesJSEditor />
+            </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       
       {/* Media */}
       <Route path="/admin/media">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <MediaLibrary />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       
       {/* Categories */}
       <Route path="/admin/categories">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <CategoriesList />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       
       {/* Users */}
       <Route path="/admin/users">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <UsersList />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       
       {/* Settings */}
       <Route path="/admin/settings/general">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <GeneralSettings />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/settings/seo">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <SEOSettings />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/settings/integrations">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <IntegrationSettings />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       
       {/* Legacy routes */}
       <Route path="/admin/menus">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <MenuManagement />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/blog">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <BlogManagement />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       <Route path="/admin/solutions">
         {() => (
-          <DashboardLayout>
+          <ProtectedRoute>
+            <DashboardLayout>
             <SolutionManagement />
           </DashboardLayout>
+          </ProtectedRoute>
         )}
       </Route>
       

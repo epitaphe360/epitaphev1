@@ -3,6 +3,7 @@
 // ========================================
 
 import React, { useRef, useEffect, useState } from 'react';
+import { sanitizeHtml } from '../lib/sanitize';
 import {
   Bold,
   Italic,
@@ -332,7 +333,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         {preview ? (
           <div
             className="prose prose-sm max-w-none p-4 min-h-[200px]"
-            dangerouslySetInnerHTML={{ __html: value }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(value) }}
           />
         ) : (
           <textarea

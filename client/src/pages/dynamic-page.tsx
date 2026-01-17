@@ -7,6 +7,7 @@ import { useParams } from 'wouter';
 import { Navigation } from '../components/navigation';
 import { Footer } from '../components/footer';
 import { Loader2 } from 'lucide-react';
+import { sanitizeHtml } from '../lib/sanitize';
 
 interface DynamicPageData {
   id: string;
@@ -89,9 +90,9 @@ export const DynamicPage: React.FC = () => {
         {/* Content Section */}
         <section className="py-12 md:py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div 
+            <div
               className="prose prose-lg max-w-none"
-              dangerouslySetInnerHTML={{ __html: page.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.content) }}
             />
           </div>
         </section>
