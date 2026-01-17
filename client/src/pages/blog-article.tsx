@@ -4,6 +4,7 @@ import { ContactSection } from "@/components/contact-section";
 import { useParams, Link } from "wouter";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const blogArticles: Record<string, {
   title: string;
@@ -365,7 +366,7 @@ export default function BlogArticlePage() {
                 return (
                   <ol key={idx} className="list-decimal pl-6 my-4 space-y-2">
                     {items.map((item, i) => (
-                      <li key={i} dangerouslySetInnerHTML={{ __html: item.replace(/^\d\. /, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                      <li key={i} dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.replace(/^\d\. /, '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')) }} />
                     ))}
                   </ol>
                 );

@@ -6,6 +6,7 @@ import { registerAdminRoutes } from "./admin-routes";
 import { db } from "./db";
 import { pages, articles, events, categories, media } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { requireAuth, requireAdmin } from "./lib/auth";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -22,7 +23,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/contact", async (req, res) => {
+  app.get("/api/contact", requireAuth, requireAdmin, async (req, res) => {
     try {
       const messages = await storage.getContactMessages();
       res.json(messages);

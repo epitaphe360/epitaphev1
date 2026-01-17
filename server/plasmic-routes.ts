@@ -3,6 +3,7 @@ import type { Express } from "express";
 import { db } from "./db";
 import { pages } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { requireAuth } from "./lib/auth";
 
 interface GrapesPage {
   id: string;
@@ -59,7 +60,7 @@ export function registerGrapesRoutes(app: Express) {
   const router = Router();
 
   // Lister toutes les pages GrapesJS
-  router.get("/pages", async (req, res) => {
+  router.get("/pages", requireAuth, async (req, res) => {
     try {
       const allPages = await db
         .select()
@@ -75,7 +76,7 @@ export function registerGrapesRoutes(app: Express) {
   });
 
   // Obtenir une page spécifique par ID
-  router.get("/pages/:id", async (req, res) => {
+  router.get("/pages/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const [page] = await db
@@ -97,7 +98,7 @@ export function registerGrapesRoutes(app: Express) {
   });
 
   // Créer une nouvelle page
-  router.post("/pages", async (req, res) => {
+  router.post("/pages", requireAuth, async (req, res) => {
     try {
       const grapesData = req.body as Partial<GrapesPage>;
       const pageData = grapesToPage(grapesData);
@@ -119,7 +120,7 @@ export function registerGrapesRoutes(app: Express) {
   });
 
   // Mettre à jour une page
-  router.put("/pages/:id", async (req, res) => {
+  router.put("/pages/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
       const grapesData = req.body as Partial<GrapesPage>;
@@ -155,7 +156,7 @@ export function registerGrapesRoutes(app: Express) {
   });
 
   // Supprimer une page
-  router.delete("/pages/:id", async (req, res) => {
+  router.delete("/pages/:id", requireAuth, async (req, res) => {
     try {
       const { id } = req.params;
 

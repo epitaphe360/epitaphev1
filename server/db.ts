@@ -2,23 +2,20 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from "@shared/schema";
 
-let queryClient: any;
-let db: any;
-
-try {
-  if (!process.env.DATABASE_URL) {
-    console.warn("⚠️ DATABASE_URL not set, running in mock mode");
-  } else {
-    queryClient = postgres(process.env.DATABASE_URL, { 
-      ssl: 'require', 
-      connect_timeout: 10000 
-    });
-    db = drizzle(queryClient, { schema });
-    console.log("✅ Database connection initialized");
-  }
-} catch (error: any) {
-  console.error("❌ Database connection error:", error.message);
-  console.error("Continuing without database...");
+// Validate DATABASE_URL is set
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required. Please set it in your .env file.');
 }
+
+// Initialize PostgreSQL client
+const queryClient = postgres(process.env.DATABASE_URL, {
+  ssl: 'require',
+  connect_timeout: 10000
+});
+
+// Initialize Drizzle ORM with proper typing
+const db = drizzle(queryClient, { schema });
+
+console.log("✅ Database connection initialized");
 
 export { db, queryClient };

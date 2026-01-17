@@ -48,6 +48,8 @@ export { Sidebar } from './components/Sidebar';
 export { DashboardLayout } from './layouts/DashboardLayout';
 
 // Pages
+export { NewLoginPage as LoginPage } from './pages/NewLoginPage';
+export { default as Dashboard } from './pages/Dashboard';
 export { DashboardPage } from './pages/DashboardPage';
 export { MediaLibrary } from './pages/MediaLibrary';
 export { ArticlesList, ArticleForm } from './pages/articles';

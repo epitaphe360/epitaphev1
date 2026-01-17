@@ -1,8 +1,77 @@
 import type { Express } from "express";
 import { db } from "./db";
-import { users, articles, events, pages, categories, media, navigationMenus, settings, auditLogs } from "@shared/schema";
+import {
+  users, articles, events, pages, categories, media, navigationMenus, settings, auditLogs,
+  insertArticleSchema, insertEventSchema, insertPageSchema
+} from "@shared/schema";
 import { eq, desc, and, or, like, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin, generateToken, hashPassword, verifyPassword, type AuthRequest } from "./lib/auth";
+import { z } from "zod";
+
+/**
+ * Sanitize a search string for use in SQL LIKE patterns
+ * Escapes special SQL LIKE characters: %, _, \
+ */
+function sanitizeLikePattern(input: string): string {
+  if (!input) return '';
+  return input.replace(/[%_\\]/g, '\\$&');
+}
+
+/**
+ * Validate password strength
+ * Requirements:
+ * - At least 12 characters
+ * - At least one uppercase letter
+ * - At least one lowercase letter
+ * - At least one number
+ * - At least one special character
+ */
+function validatePassword(password: string): { valid: boolean; error?: string } {
+  if (!password) {
+    return { valid: false, error: 'Le mot de passe est requis' };
+  }
+
+  if (password.length < 12) {
+    return { valid: false, error: 'Le mot de passe doit contenir au moins 12 caractères' };
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return { valid: false, error: 'Le mot de passe doit contenir au moins une lettre majuscule' };
+  }
+
+  if (!/[a-z]/.test(password)) {
+    return { valid: false, error: 'Le mot de passe doit contenir au moins une lettre minuscule' };
+  }
+
+  if (!/[0-9]/.test(password)) {
+    return { valid: false, error: 'Le mot de passe doit contenir au moins un chiffre' };
+  }
+
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    return { valid: false, error: 'Le mot de passe doit contenir au moins un caractère spécial' };
+  }
+
+  return { valid: true };
+}
+
+/**
+ * Safely parse and validate pagination parameters
+ * Returns validated limit and offset values
+ */
+function validatePagination(limit: string | undefined, offset: string | undefined): { limit: number; offset: number } | { error: string } {
+  const limitNum = limit ? parseInt(limit, 10) : 50;
+  const offsetNum = offset ? parseInt(offset, 10) : 0;
+
+  if (isNaN(limitNum) || limitNum < 0 || limitNum > 1000) {
+    return { error: 'Invalid limit parameter. Must be a number between 0 and 1000.' };
+  }
+
+  if (isNaN(offsetNum) || offsetNum < 0) {
+    return { error: 'Invalid offset parameter. Must be a non-negative number.' };
+  }
+
+  return { limit: limitNum, offset: offsetNum };
+}
 
 export function registerAdminRoutes(app: Express) {
 
@@ -80,17 +149,24 @@ export function registerAdminRoutes(app: Express) {
   // Get all articles
   app.get('/api/admin/articles', requireAuth, async (req, res) => {
     try {
-      const { status, search, categoryId, limit = '50', offset = '0' } = req.query;
+      const { status, search, categoryId, limit, offset } = req.query;
+
+      // Validate pagination parameters
+      const pagination = validatePagination(limit as string, offset as string);
+      if ('error' in pagination) {
+        return res.status(400).json({ error: pagination.error });
+      }
 
       const conditions = [];
       if (status && status !== 'all') {
         conditions.push(eq(articles.status, status as string));
       }
       if (search) {
+        const sanitizedSearch = sanitizeLikePattern(search as string);
         conditions.push(
           or(
-            like(articles.title, `%${search}%`),
-            like(articles.content, `%${search}%`)
+            like(articles.title, `%${sanitizedSearch}%`),
+            like(articles.content, `%${sanitizedSearch}%`)
           )
         );
       }
@@ -105,8 +181,8 @@ export function registerAdminRoutes(app: Express) {
 
       const result = await query
         .orderBy(desc(articles.createdAt))
-        .limit(parseInt(limit as string))
-        .offset(parseInt(offset as string));
+        .limit(pagination.limit)
+        .offset(pagination.offset);
 
       res.json(result);
     } catch (error) {
@@ -134,10 +210,13 @@ export function registerAdminRoutes(app: Express) {
   // Create article
   app.post('/api/admin/articles', requireAuth, async (req: AuthRequest, res) => {
     try {
+      // Validate input data with Zod schema
+      const validatedData = insertArticleSchema.parse(req.body);
+
       const data = {
-        ...req.body,
+        ...validatedData,
         authorId: req.user?.userId,
-        publishedAt: req.body.status === 'PUBLISHED' ? new Date() : null,
+        publishedAt: validatedData.status === 'PUBLISHED' ? new Date() : null,
       };
 
       const [newArticle] = await db.insert(articles).values(data).returning();
@@ -154,6 +233,9 @@ export function registerAdminRoutes(app: Express) {
       res.status(201).json(newArticle);
     } catch (error) {
       console.error('Create article error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       res.status(500).json({ error: 'Erreur lors de la création de l\'article' });
     }
   });
@@ -167,9 +249,12 @@ export function registerAdminRoutes(app: Express) {
         return res.status(404).json({ error: 'Article non trouvé' });
       }
 
+      // Validate input data with Zod schema (partial for updates)
+      const validatedData = insertArticleSchema.partial().parse(req.body);
+
       const data = {
-        ...req.body,
-        publishedAt: req.body.status === 'PUBLISHED' && !existing.publishedAt ? new Date() : existing.publishedAt,
+        ...validatedData,
+        publishedAt: validatedData.status === 'PUBLISHED' && !existing.publishedAt ? new Date() : existing.publishedAt,
       };
 
       const [updated] = await db.update(articles)
@@ -189,6 +274,9 @@ export function registerAdminRoutes(app: Express) {
       res.json(updated);
     } catch (error) {
       console.error('Update article error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'article' });
     }
   });
@@ -227,7 +315,13 @@ export function registerAdminRoutes(app: Express) {
   // Get all events
   app.get('/api/admin/events', requireAuth, async (req, res) => {
     try {
-      const { status, upcoming, limit = '50', offset = '0' } = req.query;
+      const { status, upcoming, limit, offset } = req.query;
+
+      // Validate pagination parameters
+      const pagination = validatePagination(limit as string, offset as string);
+      if ('error' in pagination) {
+        return res.status(400).json({ error: pagination.error });
+      }
 
       const conditions = [];
       if (status && status !== 'all') {
@@ -244,8 +338,8 @@ export function registerAdminRoutes(app: Express) {
 
       const result = await query
         .orderBy(desc(events.startDate))
-        .limit(parseInt(limit as string))
-        .offset(parseInt(offset as string));
+        .limit(pagination.limit)
+        .offset(pagination.offset);
 
       res.json(result);
     } catch (error) {
@@ -273,8 +367,11 @@ export function registerAdminRoutes(app: Express) {
   // Create event
   app.post('/api/admin/events', requireAuth, async (req: AuthRequest, res) => {
     try {
+      // Validate input data with Zod schema
+      const validatedData = insertEventSchema.parse(req.body);
+
       const data = {
-        ...req.body,
+        ...validatedData,
         organizerId: req.user?.userId,
       };
 
@@ -291,6 +388,9 @@ export function registerAdminRoutes(app: Express) {
       res.status(201).json(newEvent);
     } catch (error) {
       console.error('Create event error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       res.status(500).json({ error: 'Erreur lors de la création de l\'événement' });
     }
   });
@@ -304,8 +404,11 @@ export function registerAdminRoutes(app: Express) {
         return res.status(404).json({ error: 'Événement non trouvé' });
       }
 
+      // Validate input data with Zod schema (partial for updates)
+      const validatedData = insertEventSchema.partial().parse(req.body);
+
       const [updated] = await db.update(events)
-        .set(req.body)
+        .set(validatedData)
         .where(eq(events.id, req.params.id))
         .returning();
 
@@ -320,6 +423,9 @@ export function registerAdminRoutes(app: Express) {
       res.json(updated);
     } catch (error) {
       console.error('Update event error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'événement' });
     }
   });
@@ -435,6 +541,12 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { email, password, name, role } = req.body;
 
+      // Validate password strength
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.valid) {
+        return res.status(400).json({ error: passwordValidation.error });
+      }
+
       // Hash password
       const hashedPassword = await hashPassword(password);
 
@@ -458,8 +570,12 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { password, ...updateData } = req.body;
 
-      // If password is being updated, hash it
+      // If password is being updated, validate and hash it
       if (password) {
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.valid) {
+          return res.status(400).json({ error: passwordValidation.error });
+        }
         updateData.password = await hashPassword(password);
       }
 
@@ -481,8 +597,13 @@ export function registerAdminRoutes(app: Express) {
   });
 
   // Delete user
-  app.delete('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) => {
+  app.delete('/api/admin/users/:id', requireAuth, requireAdmin, async (req: AuthRequest, res) => {
     try {
+      // Prevent admin from deleting their own account
+      if (req.params.id === req.user?.userId) {
+        return res.status(400).json({ error: 'Vous ne pouvez pas supprimer votre propre compte' });
+      }
+
       await db.delete(users).where(eq(users.id, req.params.id));
       res.json({ success: true });
     } catch (error) {
@@ -498,17 +619,24 @@ export function registerAdminRoutes(app: Express) {
   // Get all media
   app.get('/api/admin/media', requireAuth, async (req, res) => {
     try {
-      const { folder, search, limit = '50', offset = '0' } = req.query;
+      const { folder, search, limit, offset } = req.query;
+
+      // Validate pagination parameters
+      const pagination = validatePagination(limit as string, offset as string);
+      if ('error' in pagination) {
+        return res.status(400).json({ error: pagination.error });
+      }
 
       const conditions = [];
       if (folder) {
         conditions.push(eq(media.folder, folder as string));
       }
       if (search) {
+        const sanitizedSearch = sanitizeLikePattern(search as string);
         conditions.push(
           or(
-            like(media.originalName, `%${search}%`),
-            like(media.alt, `%${search}%`)
+            like(media.originalName, `%${sanitizedSearch}%`),
+            like(media.alt, `%${sanitizedSearch}%`)
           )
         );
       }
@@ -520,8 +648,8 @@ export function registerAdminRoutes(app: Express) {
 
       const result = await query
         .orderBy(desc(media.createdAt))
-        .limit(parseInt(limit as string))
-        .offset(parseInt(offset as string));
+        .limit(pagination.limit)
+        .offset(pagination.offset);
 
       res.json(result);
     } catch (error) {
@@ -564,16 +692,22 @@ export function registerAdminRoutes(app: Express) {
   // Create page
   app.post('/api/admin/pages', requireAuth, async (req: AuthRequest, res) => {
     try {
+      // Validate input data with Zod schema
+      const validatedData = insertPageSchema.parse(req.body);
+
       const data = {
-        ...req.body,
+        ...validatedData,
         authorId: req.user?.userId,
-        publishedAt: req.body.status === 'PUBLISHED' ? new Date() : null,
+        publishedAt: validatedData.status === 'PUBLISHED' ? new Date() : null,
       };
 
       const [newPage] = await db.insert(pages).values(data).returning();
       res.status(201).json(newPage);
     } catch (error) {
       console.error('Create page error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       res.status(500).json({ error: 'Erreur lors de la création de la page' });
     }
   });
@@ -581,8 +715,11 @@ export function registerAdminRoutes(app: Express) {
   // Update page
   app.put('/api/admin/pages/:id', requireAuth, async (req, res) => {
     try {
+      // Validate input data with Zod schema (partial for updates)
+      const validatedData = insertPageSchema.partial().parse(req.body);
+
       const [updated] = await db.update(pages)
-        .set(req.body)
+        .set(validatedData)
         .where(eq(pages.id, req.params.id))
         .returning();
 
@@ -593,6 +730,9 @@ export function registerAdminRoutes(app: Express) {
       res.json(updated);
     } catch (error) {
       console.error('Update page error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       res.status(500).json({ error: 'Erreur lors de la mise à jour de la page' });
     }
   });
@@ -614,7 +754,13 @@ export function registerAdminRoutes(app: Express) {
 
   app.get('/api/admin/audit-logs', requireAuth, requireAdmin, async (req, res) => {
     try {
-      const { entityType, entityId, userId, limit = '100', offset = '0' } = req.query;
+      const { entityType, entityId, userId, limit, offset } = req.query;
+
+      // Validate pagination parameters (default limit for audit logs is 100)
+      const pagination = validatePagination(limit as string || '100', offset as string);
+      if ('error' in pagination) {
+        return res.status(400).json({ error: pagination.error });
+      }
 
       const conditions = [];
       if (entityType) {
@@ -634,8 +780,8 @@ export function registerAdminRoutes(app: Express) {
 
       const result = await query
         .orderBy(desc(auditLogs.createdAt))
-        .limit(parseInt(limit as string))
-        .offset(parseInt(offset as string));
+        .limit(pagination.limit)
+        .offset(pagination.offset);
 
       res.json(result);
     } catch (error) {
