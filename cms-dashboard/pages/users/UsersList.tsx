@@ -17,8 +17,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'editor' | 'author';
-  status: 'active' | 'inactive';
+  role: 'ADMIN' | 'EDITOR' | 'AUTHOR' | 'USER';
   createdAt: string;
   lastLogin?: string;
 }
@@ -91,17 +90,19 @@ export const UsersList: React.FC = () => {
   };
 
   const getRoleBadge = (role: string) => {
-    const variants: Record<string, 'danger' | 'warning' | 'info'> = {
-      admin: 'danger',
-      editor: 'warning',
-      author: 'info',
+    const variants: Record<string, 'danger' | 'warning' | 'info' | 'default'> = {
+      ADMIN: 'danger',
+      EDITOR: 'warning',
+      AUTHOR: 'info',
+      USER: 'default',
     };
     const labels: Record<string, string> = {
-      admin: 'Administrateur',
-      editor: 'Éditeur',
-      author: 'Auteur',
+      ADMIN: 'Administrateur',
+      EDITOR: 'Éditeur',
+      AUTHOR: 'Auteur',
+      USER: 'Utilisateur',
     };
-    return <Badge variant={variants[role]}>{labels[role]}</Badge>;
+    return <Badge variant={variants[role] || 'default'}>{labels[role] || role}</Badge>;
   };
 
   const filteredUsers = users.filter((user) => {
@@ -131,15 +132,6 @@ export const UsersList: React.FC = () => {
       key: 'role',
       header: 'Rôle',
       render: (user) => getRoleBadge(user.role),
-    },
-    {
-      key: 'status',
-      header: 'Statut',
-      render: (user) => (
-        <Badge variant={user.status === 'active' ? 'success' : 'default'}>
-          {user.status === 'active' ? 'Actif' : 'Inactif'}
-        </Badge>
-      ),
     },
     {
       key: 'lastLogin',
@@ -202,9 +194,10 @@ export const UsersList: React.FC = () => {
             onChange={(e) => setRoleFilter(e.target.value)}
             options={[
               { value: 'all', label: 'Tous les rôles' },
-              { value: 'admin', label: 'Administrateurs' },
-              { value: 'editor', label: 'Éditeurs' },
-              { value: 'author', label: 'Auteurs' },
+              { value: 'ADMIN', label: 'Administrateurs' },
+              { value: 'EDITOR', label: 'Éditeurs' },
+              { value: 'AUTHOR', label: 'Auteurs' },
+              { value: 'USER', label: 'Utilisateurs' },
             ]}
           />
         </div>

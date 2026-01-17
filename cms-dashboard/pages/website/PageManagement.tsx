@@ -149,7 +149,7 @@ export const PageManagement: React.FC = () => {
       condition: (page: PageContent) => page.status === 'published'
     },
     {
-      label: page => page.status === 'published' ? 'Dépublier' : 'Publier',
+      label: (page: PageContent) => page.status === 'published' ? 'Dépublier' : 'Publier',
       icon: <Globe size={16} />,
       onClick: (page: PageContent) => toggleStatus(page.id, page.status),
       variant: 'secondary' as const
@@ -190,7 +190,7 @@ export const PageManagement: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={editingPage?.id ? 'Modifier la page' : 'Nouvelle page'}
-        maxWidth="4xl"
+        maxWidth="full"
       >
         {editingPage && (
           <PageForm
