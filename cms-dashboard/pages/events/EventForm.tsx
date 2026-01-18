@@ -15,6 +15,77 @@ import { getApi } from '../../lib/api';
 import { Event, EventFormData } from '../../types';
 import { EVENT_TEMPLATES, EventTemplate } from '../../types/templates';
 
+// Template data types for events
+interface ConferenceTemplateData {
+  speakers?: string;
+  programUrl?: string;
+}
+
+interface WorkshopTemplateData {
+  instructor?: string;
+  level?: 'beginner' | 'intermediate' | 'advanced';
+  requirements?: string;
+}
+
+interface WebinarTemplateData {
+  meetingUrl?: string;
+  platform?: string;
+  recordingUrl?: string;
+}
+
+interface NetworkingTemplateData {
+  targetIndustries?: string;
+  dressCode?: string;
+}
+
+interface ConcertTemplateData {
+  headliner?: string;
+  supportActs?: string;
+  genre?: string;
+}
+
+interface ExhibitionTemplateData {
+  artists?: string;
+  theme?: string;
+  vernissageDate?: string;
+}
+
+interface FestivalTemplateData {
+  lineup?: string;
+  stages?: number;
+}
+
+interface CeremonyTemplateData {
+  ceremonyType?: string;
+  host?: string;
+  agenda?: string;
+}
+
+interface CompetitionTemplateData {
+  competitionType?: string;
+  rules?: string;
+  prizes?: string;
+}
+
+interface MeetupTemplateData {
+  community?: string;
+  talks?: string;
+  sponsors?: string;
+}
+
+type EventTemplateData = Partial<
+  ConferenceTemplateData &
+  WorkshopTemplateData &
+  WebinarTemplateData &
+  NetworkingTemplateData &
+  ConcertTemplateData &
+  ExhibitionTemplateData &
+  FestivalTemplateData &
+  CeremonyTemplateData &
+  CompetitionTemplateData &
+  MeetupTemplateData
+>;
+
 export const EventForm: React.FC = () => {
   const { id } = useParams();
   const isEditing = !!id;
@@ -24,7 +95,7 @@ export const EventForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<EventTemplate>('CONFERENCE');
-  const [templateData, setTemplateData] = useState<any>({});
+  const [templateData, setTemplateData] = useState<EventTemplateData>({});
 
   const [formData, setFormData] = useState<EventFormData>({
     title: '',
@@ -124,8 +195,11 @@ export const EventForm: React.FC = () => {
         toast.success('Succès', 'Événement créé');
       }
       navigate('/admin/events');
-    } catch (error: any) {
-      toast.error('Erreur', error.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error && 'response' in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        : 'Erreur lors de l\'enregistrement';
+      toast.error('Erreur', errorMessage || 'Erreur lors de l\'enregistrement');
     } finally {
       setSaving(false);
     }

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { db } from "./db";
 import {
   users, articles, events, pages, categories, media, navigationMenus, settings, auditLogs,
-  insertArticleSchema, insertEventSchema, insertPageSchema
+  insertArticleSchema, insertEventSchema, insertPageSchema, insertCategorySchema, insertSettingSchema
 } from "@shared/schema";
 import { eq, desc, and, or, like, sql } from "drizzle-orm";
 import { requireAuth, requireAdmin, generateToken, hashPassword, verifyPassword, type AuthRequest } from "./lib/auth";
@@ -474,9 +474,13 @@ export function registerAdminRoutes(app: Express) {
   // Create category
   app.post('/api/admin/categories', requireAuth, async (req, res) => {
     try {
-      const [newCategory] = await db.insert(categories).values(req.body).returning();
+      const validatedData = insertCategorySchema.parse(req.body);
+      const [newCategory] = await db.insert(categories).values(validatedData).returning();
       res.status(201).json(newCategory);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       console.error('Create category error:', error);
       res.status(500).json({ error: 'Erreur lors de la création de la catégorie' });
     }
@@ -485,8 +489,9 @@ export function registerAdminRoutes(app: Express) {
   // Update category
   app.put('/api/admin/categories/:id', requireAuth, async (req, res) => {
     try {
+      const validatedData = insertCategorySchema.partial().parse(req.body);
       const [updated] = await db.update(categories)
-        .set(req.body)
+        .set(validatedData)
         .where(eq(categories.id, req.params.id))
         .returning();
 
@@ -496,6 +501,9 @@ export function registerAdminRoutes(app: Express) {
 
       res.json(updated);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       console.error('Update category error:', error);
       res.status(500).json({ error: 'Erreur lors de la mise à jour de la catégorie' });
     }
@@ -539,27 +547,38 @@ export function registerAdminRoutes(app: Express) {
   // Create user
   app.post('/api/admin/users', requireAuth, requireAdmin, async (req, res) => {
     try {
-      const { email, password, name, role } = req.body;
+      // Validate email and basic user data
+      const userSchema = z.object({
+        email: z.string().email('Email invalide'),
+        password: z.string().min(1, 'Mot de passe requis'),
+        name: z.string().min(1, 'Nom requis'),
+        role: z.enum(['ADMIN', 'USER']).optional()
+      });
+
+      const validatedData = userSchema.parse(req.body);
 
       // Validate password strength
-      const passwordValidation = validatePassword(password);
+      const passwordValidation = validatePassword(validatedData.password);
       if (!passwordValidation.valid) {
         return res.status(400).json({ error: passwordValidation.error });
       }
 
       // Hash password
-      const hashedPassword = await hashPassword(password);
+      const hashedPassword = await hashPassword(validatedData.password);
 
       const [newUser] = await db.insert(users).values({
-        email,
+        email: validatedData.email,
         password: hashedPassword,
-        name,
-        role: role || 'USER',
+        name: validatedData.name,
+        role: validatedData.role || 'USER',
       }).returning();
 
       const { password: _, ...userData } = newUser;
       res.status(201).json(userData);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       console.error('Create user error:', error);
       res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur' });
     }
@@ -568,7 +587,16 @@ export function registerAdminRoutes(app: Express) {
   // Update user
   app.put('/api/admin/users/:id', requireAuth, requireAdmin, async (req, res) => {
     try {
-      const { password, ...updateData } = req.body;
+      // Validate user update data
+      const userUpdateSchema = z.object({
+        email: z.string().email('Email invalide').optional(),
+        password: z.string().optional(),
+        name: z.string().min(1, 'Nom requis').optional(),
+        role: z.enum(['ADMIN', 'USER']).optional()
+      });
+
+      const validatedData = userUpdateSchema.parse(req.body);
+      const { password, ...updateData } = validatedData;
 
       // If password is being updated, validate and hash it
       if (password) {
@@ -591,6 +619,9 @@ export function registerAdminRoutes(app: Express) {
       const { password: _, ...userData } = updated;
       res.json(userData);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: 'Données invalides', details: error.errors });
+      }
       console.error('Update user error:', error);
       res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'utilisateur' });
     }

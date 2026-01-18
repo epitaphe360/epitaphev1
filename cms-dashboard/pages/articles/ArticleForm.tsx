@@ -12,8 +12,68 @@ import { RichTextEditor } from '../../components/RichTextEditor';
 import { FileUpload, ImagePreview } from '../../components/FileUpload';
 import { useToast } from '../../components/Toast';
 import { getApi } from '../../lib/api';
-import { Article, ArticleFormData } from '../../types';
+import { Article, ArticleFormData, Category } from '../../types';
 import { ARTICLE_TEMPLATES, ArticleTemplate } from '../../types/templates';
+
+// Template data types
+interface VideoTemplateData {
+  videoUrl?: string;
+  embedCode?: string;
+}
+
+interface QuoteTemplateData {
+  quote?: string;
+  author?: string;
+  authorTitle?: string;
+}
+
+interface LinkListTemplateData {
+  linkUrl?: string;
+  linkTitle?: string;
+}
+
+interface InterviewTemplateData {
+  interviewee?: string;
+  intervieweeTitle?: string;
+}
+
+interface ReviewTemplateData {
+  rating?: number;
+  pros?: string;
+  cons?: string;
+  verdict?: string;
+}
+
+interface TutorialTemplateData {
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  duration?: string;
+  requirements?: string;
+}
+
+interface CaseStudyTemplateData {
+  client?: string;
+  industry?: string;
+  problem?: string;
+  solution?: string;
+  results?: string;
+}
+
+interface NewsTemplateData {
+  source?: string;
+  eventDate?: string;
+  location?: string;
+}
+
+type TemplateData = Partial<
+  VideoTemplateData &
+  QuoteTemplateData &
+  LinkListTemplateData &
+  InterviewTemplateData &
+  ReviewTemplateData &
+  TutorialTemplateData &
+  CaseStudyTemplateData &
+  NewsTemplateData
+>;
 
 export const ArticleForm: React.FC = () => {
   const { id } = useParams();
@@ -23,9 +83,9 @@ export const ArticleForm: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<ArticleTemplate>('STANDARD');
-  const [templateData, setTemplateData] = useState<any>({});
+  const [templateData, setTemplateData] = useState<TemplateData>({});
   
   const [formData, setFormData] = useState<ArticleFormData>({
     title: '',
@@ -122,8 +182,11 @@ export const ArticleForm: React.FC = () => {
         toast.success('Succès', 'Article créé');
       }
       navigate('/admin/articles');
-    } catch (error: any) {
-      toast.error('Erreur', error.response?.data?.message || 'Erreur lors de l\'enregistrement');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error && 'response' in error
+        ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
+        : 'Erreur lors de l\'enregistrement';
+      toast.error('Erreur', errorMessage || 'Erreur lors de l\'enregistrement');
     } finally {
       setSaving(false);
     }

@@ -58,9 +58,28 @@ interface TopPage {
   change: number;
 }
 
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  subtext: string;
+  trend?: number;
+  icon: React.ComponentType<{ className?: string }>;
+  delay: number;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  label?: string;
+}
+
 // --- Components ---
 
-const StatCard = ({ title, value, subtext, trend, icon: Icon, delay }: any) => (
+const StatCard: React.FC<StatCardProps> = ({ title, value, subtext, trend, icon: Icon, delay }) => (
   <div 
     className="group relative overflow-hidden rounded-3xl bg-[#0B1121] border border-[#1E293B] p-5 transition-all duration-500 hover:border-[#E63946]/30 hover:shadow-2xl hover:shadow-[#E63946]/10"
     style={{ animation: `fadeInUp 0.6s ease-out ${delay}s backwards` }}
@@ -98,7 +117,7 @@ const StatCard = ({ title, value, subtext, trend, icon: Icon, delay }: any) => (
   </div>
 );
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-[#0f172a]/95 backdrop-blur-xl border border-gray-700/50 p-4 rounded-xl shadow-2xl">

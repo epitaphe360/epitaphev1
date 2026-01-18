@@ -9,23 +9,23 @@ import { getApi } from '../lib/api';
 // Hook simplifié pour utiliser l'API directement
 export function useApi() {
   const api = getApi();
-  
-  const get = async (url: string, params?: any) => {
+
+  const get = async (url: string, params?: Record<string, unknown>) => {
     const response = await api.get(url, { params });
     return response.data;
   };
 
-  const post = async (url: string, data?: any) => {
+  const post = async (url: string, data?: unknown) => {
     const response = await api.post(url, data);
     return response.data;
   };
 
-  const put = async (url: string, data?: any) => {
+  const put = async (url: string, data?: unknown) => {
     const response = await api.put(url, data);
     return response.data;
   };
 
-  const patch = async (url: string, data?: any) => {
+  const patch = async (url: string, data?: unknown) => {
     const response = await api.patch(url, data);
     return response.data;
   };
@@ -48,7 +48,7 @@ interface UseApiState<T> {
 
 export function useApiQuery<T>(
   fetcher: (api: AxiosInstance) => Promise<{ data: T }>,
-  deps: any[] = []
+  deps: React.DependencyList = []
 ): UseApiState<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
