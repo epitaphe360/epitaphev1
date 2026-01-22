@@ -39,11 +39,11 @@ function grapesToPage(grapesPage: Partial<GrapesPage>, existingSections?: any) {
   const sections = existingSections || {};
 
   return {
-    title: grapesPage.name,
-    slug: grapesPage.path,
-    content: grapesPage.html,
-    status: grapesPage.status === 'published' ? 'PUBLISHED' : 'DRAFT',
-    template: 'GRAPES_JS',
+    title: grapesPage.name || 'Nouvelle page',
+    slug: grapesPage.path || 'nouvelle-page',
+    content: grapesPage.html || '',
+    status: grapesPage.status === 'published' ? 'PUBLISHED' as const : 'DRAFT' as const,
+    template: 'GRAPES_JS' as const,
     sections: {
       ...sections,
       grapesjs: {

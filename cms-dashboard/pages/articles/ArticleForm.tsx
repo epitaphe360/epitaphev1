@@ -368,7 +368,7 @@ export const ArticleForm: React.FC = () => {
               <Select
                 label="Niveau de difficulté"
                 value={templateData.difficulty || 'beginner'}
-                onChange={(e) => setTemplateData({ ...templateData, difficulty: e.target.value })}
+                onChange={(e) => setTemplateData({ ...templateData, difficulty: e.target.value as 'beginner' | 'intermediate' | 'advanced' })}
                 options={[
                   { value: 'beginner', label: 'Débutant' },
                   { value: 'intermediate', label: 'Intermédiaire' },

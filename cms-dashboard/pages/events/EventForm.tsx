@@ -258,7 +258,7 @@ export const EventForm: React.FC = () => {
               <Select
                 label="Niveau requis"
                 value={templateData.level || 'beginner'}
-                onChange={(e) => setTemplateData({ ...templateData, level: e.target.value })}
+                onChange={(e) => setTemplateData({ ...templateData, level: e.target.value as 'beginner' | 'intermediate' | 'advanced' })}
                 options={[
                   { value: 'beginner', label: 'Débutant' },
                   { value: 'intermediate', label: 'Intermédiaire' },
@@ -405,7 +405,7 @@ export const EventForm: React.FC = () => {
                 label="Nombre de scènes/espaces"
                 type="number"
                 value={templateData.stages || ''}
-                onChange={(e) => setTemplateData({ ...templateData, stages: e.target.value })}
+                onChange={(e) => setTemplateData({ ...templateData, stages: parseInt(e.target.value) || undefined })}
               />
             </CardContent>
           </Card>

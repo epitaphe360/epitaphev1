@@ -53,7 +53,7 @@ export function generateToken(payload: JWTPayload): string {
   const options: SignOptions = {
     expiresIn: JWT_EXPIRES_IN as any,
   };
-  return jwt.sign(payload, JWT_SECRET, options);
+  return jwt.sign(payload, JWT_SECRET!, options);
 }
 
 /**
@@ -61,7 +61,7 @@ export function generateToken(payload: JWTPayload): string {
  */
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+    return jwt.verify(token, JWT_SECRET!) as JWTPayload;
   } catch (error) {
     return null;
   }

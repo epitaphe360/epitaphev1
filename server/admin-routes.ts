@@ -596,7 +596,10 @@ export function registerAdminRoutes(app: Express) {
       });
 
       const validatedData = userUpdateSchema.parse(req.body);
-      const { password, ...updateData } = validatedData;
+      const { password, ...restData } = validatedData;
+
+      // Prepare update data
+      let updateData: Record<string, unknown> = { ...restData };
 
       // If password is being updated, validate and hash it
       if (password) {
