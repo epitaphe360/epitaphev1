@@ -4,11 +4,13 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "../../hooks/useRouterParams";
-import { Plus, Search, Edit2, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Eye, Loader2 } from "lucide-react";
 import { Card } from "../../components/Card";
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
 import { Badge } from "../../components/Badge";
+import { useConfirm } from "../../hooks/useApi";
+import { ConfirmDialog } from "../../components/Modal";
 
 interface Article {
   id: string;
@@ -24,7 +26,8 @@ export function ArticlesList() {
   const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { isOpen, message, confirm, handleConfirm, handleCancel } = useConfirm();
 
   // Données de démonstration
   const demoArticles: Article[] = [
@@ -49,11 +52,20 @@ export function ArticlesList() {
   ];
 
   useEffect(() => {
-    setArticles(demoArticles);
+    // Simulate loading
+    const loadArticles = async () => {
+      setLoading(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setArticles(demoArticles);
+      setLoading(false);
+    };
+    loadArticles();
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cet article ?")) return;
+    const confirmed = await confirm("Êtes-vous sûr de vouloir supprimer cet article ?");
+    if (!confirmed) return;
     setArticles(articles.filter((a) => a.id !== id));
   };
 
@@ -95,7 +107,10 @@ export function ArticlesList() {
             Gérez vos articles de blog et actualités
           </p>
         </div>
-        <Button onClick={() => navigate("/admin/articles/new")}>
+        <Button
+          onClick={() => navigate("/admin/articles/new")}
+          aria-label="Créer un nouvel article"
+        >
           <Plus className="w-4 h-4 mr-2" />
           Nouvel Article
         </Button>
@@ -153,32 +168,38 @@ export function ArticlesList() {
 
       {/* Table */}
       <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Article
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Catégorie
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Auteur
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Statut
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredArticles.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+            <span className="ml-3 text-gray-600">Chargement des articles...</span>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Article
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Catégorie
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Auteur
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Statut
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredArticles.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                     {search
@@ -218,6 +239,7 @@ export function ArticlesList() {
                           size="sm"
                           onClick={() => navigate(`/admin/articles/${article.id}/edit`)}
                           title="Modifier"
+                          aria-label={`Modifier l'article ${article.title}`}
                         >
                           <Edit2 className="w-4 h-4" />
                         </Button>
@@ -226,6 +248,7 @@ export function ArticlesList() {
                           size="sm"
                           onClick={() => window.open(`/blog/${article.id}`, "_blank")}
                           title="Voir"
+                          aria-label={`Voir l'article ${article.title}`}
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
@@ -234,6 +257,7 @@ export function ArticlesList() {
                           size="sm"
                           onClick={() => handleDelete(article.id)}
                           title="Supprimer"
+                          aria-label={`Supprimer l'article ${article.title}`}
                         >
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
@@ -241,11 +265,21 @@ export function ArticlesList() {
                     </td>
                   </tr>
                 ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={isOpen}
+        title="Confirmation"
+        message={message}
+        onConfirm={handleConfirm}
+        onClose={handleCancel}
+      />
     </div>
   );
 }

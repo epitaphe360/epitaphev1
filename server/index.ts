@@ -95,6 +95,15 @@ const authLimiter = rateLimit({
 
 app.use('/api/admin/login', authLimiter);
 
+// Rate limiting for contact form to prevent spam
+export const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 3, // Limit each IP to 3 contact form submissions per 15 minutes
+  message: 'Trop de soumissions de formulaire de contact. Veuillez réessayer dans 15 minutes.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // ========================================
 // LOGGING MIDDLEWARE
 // ========================================

@@ -7,12 +7,13 @@ import { db } from "./db";
 import { pages, articles, events, categories, media } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { requireAuth, requireAdmin } from "./lib/auth";
+import { contactLimiter } from "./index";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  app.post("/api/contact", async (req, res) => {
+  app.post("/api/contact", contactLimiter, async (req, res) => {
     try {
       const validatedData = insertContactMessageSchema.parse(req.body);
       const message = await storage.createContactMessage(validatedData);
