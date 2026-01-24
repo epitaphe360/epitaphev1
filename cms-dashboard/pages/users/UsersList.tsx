@@ -40,7 +40,7 @@ export const UsersList: React.FC = () => {
     setLoading(true);
     try {
       const api = getApi();
-      const response = await api.get('/users');
+      const response = await api.get('/admin/users');
       setUsers(response.data);
     } catch (error) {
       toast.error('Erreur', 'Impossible de charger les utilisateurs');
@@ -54,7 +54,7 @@ export const UsersList: React.FC = () => {
 
     try {
       const api = getApi();
-      await api.delete(`/users/${id}`);
+      await api.delete(`/admin/users/${id}`);
       toast.success('Succès', 'Utilisateur supprimé');
       loadUsers();
     } catch (error) {
@@ -76,10 +76,10 @@ export const UsersList: React.FC = () => {
     try {
       const api = getApi();
       if (editingUser) {
-        await api.put(`/users/${editingUser.id}`, data);
+        await api.put(`/admin/users/${editingUser.id}`, data);
         toast.success('Succès', 'Utilisateur mis à jour');
       } else {
-        await api.post('/users', data);
+        await api.post('/admin/users', data);
         toast.success('Succès', 'Utilisateur créé');
       }
       setIsModalOpen(false);
