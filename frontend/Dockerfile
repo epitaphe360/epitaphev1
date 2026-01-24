@@ -10,7 +10,7 @@ COPY ../vite.config.ts ./
 COPY ../tailwind.config.ts ./
 COPY ../postcss.config.js ./
 
-# Install dependencies
+# Install ALL dependencies (build needs devDependencies like vite)
 RUN npm ci
 
 # Copy source code from parent directory

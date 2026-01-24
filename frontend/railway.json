@@ -4,7 +4,7 @@
     "builder": "nixpacks"
   },
   "deploy": {
-    "startCommand": "npm run dev:client",
+    "startCommand": "serve -s build -l 3000",
     "restartPolicyType": "always",
     "restartPolicyMaxRetries": 3
   }
