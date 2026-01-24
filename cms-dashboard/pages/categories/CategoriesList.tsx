@@ -40,7 +40,7 @@ export const CategoriesList: React.FC = () => {
     setLoading(true);
     try {
       const api = getApi();
-      const response = await api.get('/categories');
+      const response = await api.get('/admin/categories');
       setCategories(response.data);
     } catch (error) {
       toast.error('Erreur', 'Impossible de charger les catégories');
@@ -54,7 +54,7 @@ export const CategoriesList: React.FC = () => {
 
     try {
       const api = getApi();
-      await api.delete(`/categories/${id}`);
+      await api.delete(`/admin/categories/${id}`);
       toast.success('Succès', 'Catégorie supprimée');
       loadCategories();
     } catch (error) {
@@ -76,10 +76,10 @@ export const CategoriesList: React.FC = () => {
     try {
       const api = getApi();
       if (editingCategory) {
-        await api.put(`/categories/${editingCategory.id}`, data);
+        await api.put(`/admin/categories/${editingCategory.id}`, data);
         toast.success('Succès', 'Catégorie mise à jour');
       } else {
-        await api.post('/categories', data);
+        await api.post('/admin/categories', data);
         toast.success('Succès', 'Catégorie créée');
       }
       setIsModalOpen(false);

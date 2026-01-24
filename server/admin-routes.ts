@@ -184,7 +184,10 @@ export function registerAdminRoutes(app: Express) {
         .limit(pagination.limit)
         .offset(pagination.offset);
 
-      res.json(result);
+      // Get total count for pagination
+      const [{ count }] = await db.select({ count: sql`count(*)` }).from(articles);
+
+      res.json({ data: result, total: Number(count) });
     } catch (error) {
       console.error('Get articles error:', error);
       res.status(500).json({ error: 'Erreur lors de la récupération des articles' });
@@ -341,7 +344,10 @@ export function registerAdminRoutes(app: Express) {
         .limit(pagination.limit)
         .offset(pagination.offset);
 
-      res.json(result);
+      // Get total count for pagination
+      const [{ count }] = await db.select({ count: sql`count(*)` }).from(events);
+
+      res.json({ data: result, total: Number(count) });
     } catch (error) {
       console.error('Get events error:', error);
       res.status(500).json({ error: 'Erreur lors de la récupération des événements' });
@@ -464,7 +470,7 @@ export function registerAdminRoutes(app: Express) {
   app.get('/api/admin/categories', requireAuth, async (req, res) => {
     try {
       const result = await db.select().from(categories).orderBy(categories.order, categories.name);
-      res.json(result);
+      res.json({ data: result, total: result.length });
     } catch (error) {
       console.error('Get categories error:', error);
       res.status(500).json({ error: 'Erreur lors de la récupération des catégories' });
@@ -529,7 +535,7 @@ export function registerAdminRoutes(app: Express) {
         updatedAt: users.updatedAt,
       }).from(users).orderBy(desc(users.createdAt));
 
-      res.json(result);
+      res.json({ data: result, total: result.length });
     } catch (error) {
       console.error('Get users error:', error);
       res.status(500).json({ error: 'Erreur lors de la récupération des utilisateurs' });
@@ -651,7 +657,10 @@ export function registerAdminRoutes(app: Express) {
         .limit(pagination.limit)
         .offset(pagination.offset);
 
-      res.json(result);
+      // Get total count for pagination
+      const [{ count }] = await db.select({ count: sql`count(*)` }).from(media);
+
+      res.json({ data: result, total: Number(count) });
     } catch (error) {
       console.error('Get media error:', error);
       res.status(500).json({ error: 'Erreur lors de la récupération des médias' });
@@ -666,7 +675,7 @@ export function registerAdminRoutes(app: Express) {
   app.get('/api/admin/pages', requireAuth, async (req, res) => {
     try {
       const result = await db.select().from(pages).orderBy(pages.order, pages.title);
-      res.json(result);
+      res.json({ data: result, total: result.length });
     } catch (error) {
       console.error('Get pages error:', error);
       res.status(500).json({ error: 'Erreur lors de la récupération des pages' });
