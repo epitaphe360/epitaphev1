@@ -96,6 +96,17 @@ const authLimiter = rateLimit({
 app.use('/api/admin/login', authLimiter);
 
 // ========================================
+// HEALTH CHECK ENDPOINT (for Railway)
+// ========================================
+app.get('/api/health', (_req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// ========================================
 // LOGGING MIDDLEWARE
 // ========================================
 
