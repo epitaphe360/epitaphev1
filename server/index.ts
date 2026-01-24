@@ -65,20 +65,27 @@ app.use(express.urlencoded({ extended: false }));
 
 // CORS configuration - support both CORS_ORIGIN and ALLOWED_ORIGINS
 const corsEnv = process.env.CORS_ORIGIN || process.env.ALLOWED_ORIGINS || '';
-const allowedOrigins = corsEnv
+const baseOrigins = corsEnv
   ? corsEnv.split(',')
   : ['http://localhost:5000', 'http://localhost:5173'];
+
+// Add the Railway backend domain to allowed origins (same-origin requests)
+const allowedOrigins = [
+  ...baseOrigins,
+  'https://epitaphe-backend-production.up.railway.app'
+];
 
 console.log('🌐 CORS allowed origins:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, Postman, curl)
+    // Allow requests with no origin (like direct browser access, Postman, curl)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
+      console.log('❌ CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
