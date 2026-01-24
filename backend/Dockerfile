@@ -3,18 +3,18 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
+# Copy package files from parent directory
+COPY ../package*.json ./
+COPY ../tsconfig.json ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy source code
-COPY server ./server
-COPY shared ./shared
-COPY script ./script
-COPY drizzle.config.ts ./
+# Copy source code from parent directory
+COPY ../server ./server
+COPY ../shared ./shared
+COPY ../script ./script
+COPY ../drizzle.config.ts ./
 
 # Build the server
 RUN npm run build
@@ -28,8 +28,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Copy package files
-COPY package*.json ./
+# Copy package files from parent directory
+COPY ../package*.json ./
 
 # Install production dependencies only
 RUN npm ci --only=production && npm cache clean --force

@@ -3,20 +3,20 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
-COPY vite.config.ts ./
-COPY tailwind.config.ts ./
-COPY postcss.config.js ./
+# Copy package files from parent directory
+COPY ../package*.json ./
+COPY ../tsconfig.json ./
+COPY ../vite.config.ts ./
+COPY ../tailwind.config.ts ./
+COPY ../postcss.config.js ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy source code
-COPY client ./client
-COPY cms-dashboard ./cms-dashboard
-COPY shared ./shared
+# Copy source code from parent directory
+COPY ../client ./client
+COPY ../cms-dashboard ./cms-dashboard
+COPY ../shared ./shared
 
 # Build the client
 RUN npm run build
