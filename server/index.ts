@@ -1,4 +1,20 @@
 import "dotenv/config";
+
+// Global error handler for uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('❌ UNCAUGHT EXCEPTION:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ UNHANDLED REJECTION at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+console.log('🔧 Starting application...');
+console.log('📊 NODE_ENV:', process.env.NODE_ENV);
+console.log('🔌 PORT:', process.env.PORT);
+
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { registerGrapesRoutes } from "./plasmic-routes";
@@ -7,6 +23,8 @@ import { createServer } from "http";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
 import helmet from "helmet";
+
+console.log('✅ Imports loaded successfully');
 
 const app = express();
 const httpServer = createServer(app);

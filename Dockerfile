@@ -37,7 +37,6 @@ FROM node:20-alpine AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=3000
 
 # Copy package files
 COPY package*.json ./
@@ -55,15 +54,17 @@ COPY migrations ./migrations
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001
 
+# Create uploads directory
+RUN mkdir -p /app/uploads && chown -R nodejs:nodejs /app/uploads
+
 # Switch to non-root user
 USER nodejs
 
-# Expose port
-EXPOSE 3000
+# Railway injects PORT dynamically, no default needed
+# EXPOSE is documentation only, Railway uses $PORT
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+# Remove Docker healthcheck - Railway handles this via /api/health
+# HEALTHCHECK removed to avoid conflicts with Railway's healthcheck
 
 # Start command
 CMD ["node", "dist/index.cjs"]
