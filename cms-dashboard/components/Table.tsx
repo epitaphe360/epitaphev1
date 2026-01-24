@@ -198,7 +198,6 @@ export const Pagination: React.FC<PaginationProps> = ({
   const startItem = (page - 1) * limit + 1;
   const endItem = Math.min(page * limit, total);
 
-  const pages = [];
   const showPages = 5;
   let startPage = Math.max(1, page - Math.floor(showPages / 2));
   const endPage = Math.min(totalPages, startPage + showPages - 1);
@@ -207,6 +206,7 @@ export const Pagination: React.FC<PaginationProps> = ({
     startPage = Math.max(1, endPage - showPages + 1);
   }
 
+  const pages: number[] = [];
   for (let i = startPage; i <= endPage; i++) {
     pages.push(i);
   }

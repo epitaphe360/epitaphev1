@@ -157,7 +157,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: pagination.error });
       }
 
-      const conditions = [];
+      const conditions: any[] = [];
       if (status && status !== 'all') {
         conditions.push(eq(articles.status, status as string));
       }
@@ -323,7 +323,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: pagination.error });
       }
 
-      const conditions = [];
+      const conditions: any[] = [];
       if (status && status !== 'all') {
         conditions.push(eq(events.status, status as string));
       }
@@ -627,7 +627,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: pagination.error });
       }
 
-      const conditions = [];
+      const conditions: any[] = [];
       if (folder) {
         conditions.push(eq(media.folder, folder as string));
       }
@@ -762,7 +762,7 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: pagination.error });
       }
 
-      const conditions = [];
+      const conditions: any[] = [];
       if (entityType) {
         conditions.push(eq(auditLogs.entityType, entityType as string));
       }
