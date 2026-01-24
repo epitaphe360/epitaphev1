@@ -31,10 +31,13 @@ app.use(express.urlencoded({ extended: false }));
 // SECURITY MIDDLEWARE
 // ========================================
 
-// CORS configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',')
+// CORS configuration - support both CORS_ORIGIN and ALLOWED_ORIGINS
+const corsEnv = process.env.CORS_ORIGIN || process.env.ALLOWED_ORIGINS || '';
+const allowedOrigins = corsEnv
+  ? corsEnv.split(',')
   : ['http://localhost:5000', 'http://localhost:5173'];
+
+console.log('🌐 CORS allowed origins:', allowedOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -180,12 +183,16 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
+  console.log(`🚀 Starting server on port ${port}...`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  
   httpServer.listen(
     {
       port,
       host: "0.0.0.0",
     },
     () => {
+      console.log(`✅ Server is ready and listening on port ${port}`);
       log(`serving on port ${port}`);
     },
   );
