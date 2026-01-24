@@ -39,9 +39,10 @@ function grapesToPage(grapesPage: Partial<GrapesPage>, existingSections?: any) {
   const sections = existingSections || {};
 
   return {
-    title: grapesPage.name,
-    slug: grapesPage.path,
-    content: grapesPage.html,
+    id: grapesPage.id || '',
+    title: grapesPage.name || '',
+    slug: grapesPage.path || '',
+    content: grapesPage.html || '',
     status: grapesPage.status === 'published' ? 'PUBLISHED' : 'DRAFT',
     template: 'GRAPES_JS',
     sections: {
@@ -106,7 +107,14 @@ export function registerGrapesRoutes(app: Express) {
       const [newPage] = await db
         .insert(pages)
         .values({
-          ...pageData,
+          id: pageData.id,
+          title: pageData.title,
+          slug: pageData.slug,
+          content: pageData.content,
+          status: pageData.status,
+          template: pageData.template,
+          sections: pageData.sections,
+          publishedAt: pageData.publishedAt,
           showInMenu: false,
         })
         .returning();

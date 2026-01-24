@@ -7,11 +7,11 @@ import jwt, { type SignOptions } from 'jsonwebtoken';
 import type { Request, Response, NextFunction } from 'express';
 
 // JWT configuration
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || '';
 if (!JWT_SECRET) {
   throw new Error('JWT_SECRET environment variable is required. Please set it in your .env file.');
 }
-const JWT_EXPIRES_IN: string | number = process.env.JWT_EXPIRES_IN || '7d';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 export interface JWTPayload {
   userId: string;
@@ -53,7 +53,7 @@ export function generateToken(payload: JWTPayload): string {
   const options: SignOptions = {
     expiresIn: JWT_EXPIRES_IN as any,
   };
-  return jwt.sign(payload, JWT_SECRET, options);
+  return jwt.sign(payload, JWT_SECRET as string, options);
 }
 
 /**
@@ -61,7 +61,7 @@ export function generateToken(payload: JWTPayload): string {
  */
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+    return jwt.verify(token, JWT_SECRET as string) as unknown as JWTPayload;
   } catch (error) {
     return null;
   }
