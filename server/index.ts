@@ -29,6 +29,20 @@ console.log('✅ Imports loaded successfully');
 const app = express();
 const httpServer = createServer(app);
 
+// Serve static assets FIRST before any other middleware
+// This prevents helmet, cors, rate-limit from interfering with static files
+import path from 'path';
+import fs from 'fs';
+const staticPath = path.resolve(process.cwd(), 'dist', 'public');
+if (fs.existsSync(staticPath)) {
+  console.log('🚀 Early static middleware for:', staticPath);
+  app.use('/assets', express.static(path.join(staticPath, 'assets'), {
+    maxAge: '1y',
+    immutable: true
+  }));
+  app.use('/favicon.png', express.static(path.join(staticPath, 'favicon.png')));
+}
+
 declare module "http" {
   interface IncomingMessage {
     rawBody: unknown;
@@ -92,12 +106,16 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
 }));
 
-// Rate limiting
+// Rate limiting - skip for static assets
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 1000, // Increased limit
   message: 'Trop de requêtes depuis cette adresse IP, veuillez réessayer plus tard.',
   standardHeaders: true,
+  skip: (req) => {
+    // Skip rate limiting for static assets
+    return req.path.startsWith('/assets') || req.path.endsWith('.js') || req.path.endsWith('.css') || req.path.endsWith('.png') || req.path.endsWith('.ico');
+  },
   legacyHeaders: false,
 });
 
